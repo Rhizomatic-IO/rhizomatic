@@ -118,7 +118,7 @@ public class WebSubsystem extends Subsystem {
             handler.getServletHandler().addServletWithMapping(servletHolder, "/" + rootPath + "/*");
 
             Utils.store(resourceConfig, handler.getServletContext(), RHIZOMATIC_REST + "_" + rootPath);
-            monitor.info(() -> "Endpoint context at: " + rootPath);
+            monitor.info(() -> "Endpoint context at: " + (rootPath.startsWith("/") ? rootPath : "/" + rootPath));
         }
     }
 
@@ -136,7 +136,7 @@ public class WebSubsystem extends Subsystem {
             ctx.setHandler(resourceHandler);
             jettyTransport.getServer().setHandler(ctx);
 
-            monitor.info(() -> "Web app at: " + contextPath);
+            monitor.info(() -> "Web app at: " + (contextPath.startsWith("/") ? contextPath : "/" + contextPath));
         }
     }
 
