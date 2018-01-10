@@ -111,6 +111,7 @@ A boot module is responsible for configuring a system from a layout. The boot mo
 module bootstrap.dev {
     
     requires io.rhizomatic.api;
+    
     provides SystemDefinition with DevSystemDefinition;
     
 }
