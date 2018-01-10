@@ -98,7 +98,7 @@ Encapsulation centralizes the complexity of configuring communications systems a
 Applications are organized as a set of Java modules. When developing an application, simply organize your code as Java modules.    
 
 Application modules are configured into a system and deployed. Unlike legacy runtimes that deploy archives to a server or are deployed as an "uber" jar, Rhizomatic systems are 
-assembled from a layout. A layout can be a set of modules located in a Docker container or a an IDE project on a filesystem.
+assembled from a layout. A layout can be a set of modules located in a Docker container or an IDE project on a filesystem.
        
 ### The Boot Module 
 
