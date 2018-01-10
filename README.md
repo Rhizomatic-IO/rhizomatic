@@ -25,10 +25,12 @@ If you do not want to use service class scanning or your services require specia
 
 ```java
 open module module.a {
+    
     requires javax.inject;
     requires io.rhizomatic.api;
 
     provides com.google.inject.Module with CustomModule;
+    
 }
 
 ```  
@@ -58,6 +60,7 @@ Base URIs for resource services can be defined using the ```o.rhizomatic.api.ann
 ```java
 @EndpointPath("api")
 open module module.a {
+    
     requires javax.inject;
     requires java.ws.rs;
     requires io.rhizomatic.api;
@@ -106,9 +109,10 @@ A boot module is responsible for configuring a system from a layout. The boot mo
 
 ```java
 module bootstrap.dev {
+    
     requires io.rhizomatic.api;
-
     provides SystemDefinition with DevSystemDefinition;
+    
 }
 ```  
 
@@ -191,9 +195,11 @@ Rhizomatic does not provide a logging implementation. Instead it uses a monitori
 
 ```java
 module bootstrap.dev {
+    
     requires io.rhizomatic.api;
 
     provides Monitor with CustomMonitor;
+    
 }
 
 ``` 
