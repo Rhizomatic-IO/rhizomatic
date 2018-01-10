@@ -2,6 +2,7 @@ package io.rhizomatic.kernel.layer;
 
 import io.rhizomatic.api.layer.RzLayer;
 import io.rhizomatic.kernel.graph.DirectedGraph;
+import io.rhizomatic.kernel.graph.TopologicalSorter;
 import io.rhizomatic.kernel.graph.Vertex;
 
 import java.util.HashSet;
@@ -13,7 +14,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Topologically sorts of a collection of layers.
  */
-public class TopologicalSorter {
+public class LayerSorter {
 
     /**
      * Sorts the layers topologically.
@@ -31,7 +32,7 @@ public class TopologicalSorter {
             graph.add(parentVertex);
             buildGraph(parentVertex, graph, seen);
         }
-        io.rhizomatic.kernel.graph.TopologicalSorter<RzLayer> sorter = new io.rhizomatic.kernel.graph.TopologicalSorter<>();
+        TopologicalSorter<RzLayer> sorter = new TopologicalSorter<>();
         return sorter.sort(graph).stream().map(Vertex::getEntity).collect(toList());
     }
 
@@ -48,6 +49,6 @@ public class TopologicalSorter {
         }
     }
 
-    private TopologicalSorter() {
+    private LayerSorter() {
     }
 }

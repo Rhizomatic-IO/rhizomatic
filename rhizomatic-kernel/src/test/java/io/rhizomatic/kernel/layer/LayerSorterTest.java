@@ -9,7 +9,7 @@ import java.util.List;
 /**
  *
  */
-public class TopologicalSorterTest {
+public class LayerSorterTest {
 
     @Test
     public void verifyTopologicalSort() {
@@ -22,7 +22,7 @@ public class TopologicalSorterTest {
 
         RzLayer layer4 = RzLayer.Builder.newInstance("layer4").parent(layer2).parent(layer3).parent(layer1).build();
 
-        List<RzLayer> sorted = TopologicalSorter.topologicalSort(List.of(layer1, layer4, layer3, layer2));
+        List<RzLayer> sorted = LayerSorter.topologicalSort(List.of(layer1, layer4, layer3, layer2));
 
         Assert.assertSame(layer1, sorted.get(0));  // first must be layer 1
         Assert.assertSame(layer4, sorted.get(3));  // last must be layer 4

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-import static io.rhizomatic.kernel.layer.TopologicalSorter.topologicalSort;
+import static io.rhizomatic.kernel.layer.LayerSorter.topologicalSort;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
