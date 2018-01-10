@@ -20,6 +20,20 @@ public class ClientService {
 ``` 
 Classes marked with ```@Service``` will be registered when the runtime is started.
 
+## Guice Modules
+If you do not want to use service class scanning or your services require special setup, application modules can provide implementations of ```com.google.injectModule```:
+
+```java
+open module module.a {
+    requires javax.inject;
+    requires io.rhizomatic.api;
+
+    provides com.google.inject.Module with CustomModule;
+}
+
+```  
+When the application module is loaded, ```CustomModule``` will be installed in the Guice Injector.
+
 ## REST Endpoints
 REST endpoints are services decorated with JAX-RS annotations. The runtime will discover and enable these services at startup:
 ```java
