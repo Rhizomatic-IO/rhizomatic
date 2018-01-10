@@ -21,7 +21,7 @@ public class ClientService {
 Classes marked with ```@Service``` will be registered when the runtime is started.
 
 ## Guice Modules
-If you do not want to use service class scanning or your services require special setup, application modules can provide implementations of ```com.google.injectModule```:
+If you do not want to use service class scanning or your services require special setup, application modules can provide implementations of ```com.google.inject.Module```:
 
 ```java
 open module module.a {
