@@ -114,7 +114,7 @@ public class WebSubsystem extends Subsystem {
 
             ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
             handler.setContextPath("/");
-            jettyTransport.getServer().setHandler(handler);
+            jettyTransport.registerHandler(handler);
             handler.getServletHandler().addServletWithMapping(servletHolder, "/" + rootPath + "/*");
 
             Utils.store(resourceConfig, handler.getServletContext(), RHIZOMATIC_REST + "_" + rootPath);
@@ -134,7 +134,7 @@ public class WebSubsystem extends Subsystem {
             resourceHandler.setBaseResource(resources);
             ContextHandler ctx = new ContextHandler(contextPath); /* the server uri path */
             ctx.setHandler(resourceHandler);
-            jettyTransport.getServer().setHandler(ctx);
+            jettyTransport.registerHandler(ctx);
 
             monitor.info(() -> "Web app at: " + (contextPath.startsWith("/") ? contextPath : "/" + contextPath));
         }

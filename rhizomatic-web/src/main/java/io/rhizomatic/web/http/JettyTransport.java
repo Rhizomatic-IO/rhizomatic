@@ -3,7 +3,12 @@ package io.rhizomatic.web.http;
 import io.rhizomatic.api.Monitor;
 import io.rhizomatic.kernel.spi.SystemConfiguration;
 import io.rhizomatic.kernel.spi.subsystem.SubsystemContext;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides HTTP communication to the system via Jetty.
@@ -23,6 +28,7 @@ public class JettyTransport {
 
     private Server server;
     private Monitor monitor;
+    private List<Handler> handlers = new ArrayList<>();
 
     public JettyTransport() {
         System.setProperty(LOG_CLASS, RzJettyLogger.class.getName());
@@ -41,6 +47,9 @@ public class JettyTransport {
 
         server.setErrorHandler(new RzErrorHandler());
         try {
+            ContextHandlerCollection contexts = new ContextHandlerCollection();
+            contexts.setHandlers(handlers.toArray(new Handler[handlers.size()]));
+            server.setHandler(contexts);
             server.start();
 
             monitor.info(() -> "Listening on HTTP " + httpPort);
@@ -60,8 +69,8 @@ public class JettyTransport {
         }
     }
 
-    public Server getServer() {
-        return server;
+    public void registerHandler(Handler handler) {
+        handlers.add(handler);
     }
 
     private int getHttp(SubsystemContext context) {
