@@ -7,18 +7,16 @@ import io.rhizomatic.api.layer.RzLayer;
 import io.rhizomatic.api.web.WebApp;
 import io.rhizomatic.kernel.layer.LayerManager;
 import io.rhizomatic.kernel.layer.LayerSubsystem;
-import io.rhizomatic.kernel.spi.layer.LoadedLayer;
 import io.rhizomatic.kernel.scan.ClassScanner;
 import io.rhizomatic.kernel.scan.ScannerSubsystem;
 import io.rhizomatic.kernel.spi.inject.InstanceManager;
+import io.rhizomatic.kernel.spi.layer.LoadedLayer;
 import io.rhizomatic.kernel.spi.scan.ScanIndex;
 import io.rhizomatic.kernel.spi.subsystem.Subsystem;
 import io.rhizomatic.kernel.spi.subsystem.SubsystemContext;
 import io.rhizomatic.kernel.spi.subsystem.Subsystems;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.lang.module.ModuleReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,7 +30,6 @@ import java.util.Set;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.DOMAIN;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.ENVIRONMENT;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.RUNTIME;
-import static io.rhizomatic.kernel.spi.util.ClassHelper.getClassName;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -96,9 +93,7 @@ public class RhizomaticSystem implements SubsystemContext {
     public void instantiateClasspath(Set<Class<?>> classes, Set<Object> instances) {
         ClassScanner classScanner = resolve(ClassScanner.class);
 
-        classes.forEach(classScanner::addClass);
-
-        ScanIndex scanIndex = classScanner.scan();
+        ScanIndex scanIndex = classScanner.scan(classes);
 
         InstanceManager instanceManager = resolve(InstanceManager.class);
 
@@ -175,29 +170,7 @@ public class RhizomaticSystem implements SubsystemContext {
      */
     private ScanIndex scan(List<LoadedLayer> loadedLayers) {
         ClassScanner classScanner = resolve(ClassScanner.class);
-
-        for (LoadedLayer loadedLayer : loadedLayers) {
-            for (ModuleReference reference : loadedLayer.getReferences()) {
-                try {
-                    reference.open().list().forEach(fileName -> {
-                        if (fileName.endsWith(".class") && !fileName.startsWith("module-info") && !fileName.startsWith("package-info")) {
-                            try {
-                                Module module = loadedLayer.getModule(reference);
-                                // Important: load using the module classloader so the class is loaded using the module
-                                Class<?> type = module.getClassLoader().loadClass(getClassName(fileName));
-                                classScanner.addClass(type);
-                            } catch (ClassNotFoundException e) {
-                                throw new RhizomaticException("Error loading module: " + reference.descriptor().name(), e);
-                            }
-                        }
-                    });
-                } catch (IOException e) {
-                    throw new RhizomaticException("Error loading module: " + reference.descriptor().name(), e);
-                }
-            }
-        }
-
-        return classScanner.scan();
+        return classScanner.scan(loadedLayers);
     }
 
     /**

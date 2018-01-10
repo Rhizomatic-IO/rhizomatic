@@ -1,10 +1,7 @@
-//apply plugin: 'war'
 javaModule.name = 'rhizomatic.kernel'
 
 dependencies {
     compile project(':rhizomatic-api')
-
-
 }
 
 //task addMainClass()  {
