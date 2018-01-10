@@ -4,6 +4,7 @@ import io.rhizomatic.api.RhizomaticException;
 import io.rhizomatic.api.layer.RzLayer;
 import io.rhizomatic.api.layer.RzModule;
 import io.rhizomatic.kernel.spi.layer.LayerListener;
+import io.rhizomatic.kernel.spi.layer.LoadedLayer;
 
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
