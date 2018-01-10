@@ -36,19 +36,20 @@ import static java.util.stream.Collectors.toSet;
  * Manages a Rhizomatic system.
  */
 public class RhizomaticSystem implements SubsystemContext {
-    private Map<String, String> configuration;
 
     private List<Subsystem> subsystems;
 
     private Map<Class<?>, List<Object>> systemServices = new HashMap<>();
 
-    private Monitor monitor;
-
-    private boolean subsystemsStarted;
-
     private List<LoadedLayer> loadedLayers = Collections.emptyList();
 
     private List<WebApp> webApps = Collections.emptyList();
+
+    private Map<String, String> configuration;
+
+    private Monitor monitor;
+
+    private boolean subsystemsStarted;
 
     public RhizomaticSystem(Monitor monitor, Map<String, String> configuration) {
         this.monitor = monitor;
