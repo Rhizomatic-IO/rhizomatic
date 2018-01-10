@@ -27,7 +27,7 @@ import static io.rhizomatic.kernel.spi.ConfigurationKeys.ENVIRONMENT;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.RUNTIME;
 
 /**
- * Main entry for a Rhizomatic system.
+ * Main entry to a Rhizomatic system.
  */
 public class Rhizomatic {
     private volatile RhizomaticState state = RhizomaticState.UNINITIALIZED;
