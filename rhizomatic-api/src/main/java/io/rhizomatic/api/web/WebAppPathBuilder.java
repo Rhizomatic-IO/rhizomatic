@@ -45,7 +45,6 @@ public class WebAppPathBuilder {
         return this;
     }
 
-
     /**
      * The path fragment that contains Java classes contained in modules, e.g. project/out/production/classes or project/build/classes. Separators will be converted to
      * their platform-specific variant.
