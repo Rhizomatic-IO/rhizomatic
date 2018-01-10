@@ -15,5 +15,7 @@ module io.rhizomatic.inject {
     requires guice.multibindings;
     requires static annotations;
 
+    uses com.google.inject.Module;
+
     provides Subsystem with InjectionSubsystem;
 }

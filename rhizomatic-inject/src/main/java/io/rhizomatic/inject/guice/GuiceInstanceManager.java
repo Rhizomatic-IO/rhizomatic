@@ -12,6 +12,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.util.Types;
 import io.rhizomatic.api.RhizomaticException;
 import io.rhizomatic.kernel.spi.inject.InstanceManager;
+import io.rhizomatic.kernel.spi.layer.LoadedLayer;
 import io.rhizomatic.kernel.spi.scan.ScanIndex;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 /**
@@ -41,7 +43,7 @@ public class GuiceInstanceManager implements InstanceManager {
     }
 
     public void wire(ScanIndex scanIndex) {
-        injector = Guice.createInjector(new AbstractModule() {
+        AbstractModule injectModule = new AbstractModule() {
             @SuppressWarnings("unchecked")
             protected void configure() {
                 if (!scanIndex.getInitCallbacks().isEmpty()) {
@@ -53,6 +55,16 @@ public class GuiceInstanceManager implements InstanceManager {
                     bind(key).toInstance(entry.getValue());
                 }
 
+                // install provided modules
+                if (!scanIndex.getLayers().isEmpty()) {
+                    for (LoadedLayer loadedLayer : scanIndex.getLayers()) {
+                        ModuleLayer layer = loadedLayer.getModuleLayer();
+                        ServiceLoader<com.google.inject.Module> guiceModules = ServiceLoader.load(layer, com.google.inject.Module.class);
+                        guiceModules.forEach(this::install);
+                    }
+                }
+
+                // bind scanned services
                 for (Map.Entry<Class<?>, List<Class<?>>> entry : scanIndex.getServiceBindings().entrySet()) {
                     if (entry.getValue().isEmpty()) {
                         //noinspection UnnecessaryContinue
@@ -71,7 +83,8 @@ public class GuiceInstanceManager implements InstanceManager {
                 eagerServices = scanIndex.getEagerServices();
                 qualifiedServices = scanIndex.getQualifiedServices();
             }
-        });
+        };
+        injector = Guice.createInjector(injectModule);
         wired = true;
     }
 

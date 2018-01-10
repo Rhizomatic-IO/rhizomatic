@@ -1,6 +1,7 @@
 package io.rhizomatic.kernel.spi.scan;
 
 import io.rhizomatic.api.annotations.Service;
+import io.rhizomatic.kernel.spi.layer.LoadedLayer;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class ScanIndex {
         return order1 - order2;
     };
 
+    private List<LoadedLayer> loadedLayers = new ArrayList<>();
     private Map<Class<?>, List<Class<?>>> bindingToServices = new HashMap<>();
 
     private Set<Class<?>> eagerServices = new HashSet<>();
@@ -31,6 +33,10 @@ public class ScanIndex {
     private Map<Class<?>, Method> initCallbacks = new HashMap<>();
 
     private List<Problem> problems = new ArrayList<>();
+
+    public List<LoadedLayer> getLayers() {
+        return loadedLayers;
+    }
 
     public Map<Class<?>, List<Class<?>>> getServiceBindings() {
         return bindingToServices;
@@ -70,6 +76,11 @@ public class ScanIndex {
 
         public static Builder newInstance() {
             return new Builder();
+        }
+
+        public Builder layers(List<LoadedLayer> loadedLayers) {
+           index.loadedLayers.addAll(loadedLayers);
+           return this;
         }
 
         public Builder service(Class<?> service) {

@@ -52,8 +52,10 @@ public class ClassScanner {
             }
         }
 
-
-        return performScan();
+        ScanIndex.Builder builder = ScanIndex.Builder.newInstance();
+        builder.layers(loadedLayers);
+        introspectionService.introspect(cache, builder);
+        return builder.build();
     }
 
     /**
@@ -63,10 +65,6 @@ public class ClassScanner {
      */
     public ScanIndex scan(Set<Class<?>> classes) {
         classes.forEach(this::addClass);
-        return performScan();
-    }
-
-    private ScanIndex performScan() {
         ScanIndex.Builder builder = ScanIndex.Builder.newInstance();
         introspectionService.introspect(cache, builder);
         return builder.build();
