@@ -6,7 +6,7 @@ import java.util.function.Supplier;
  * System monitoring and logging interface. Applications can provide their own implementation using a JPMS services provided by a module.
  *
  *
- * For example a module may contain the following provides clause:
+ * For example, a module may contain the following provides clause:
  *
  * <pre>
  * module some.module {
