@@ -2,7 +2,7 @@ package io.rhizomatic.kernel.spi.subsystem;
 
 import io.rhizomatic.api.Monitor;
 import io.rhizomatic.api.web.WebApp;
-import io.rhizomatic.kernel.spi.layer.LoadedLayer;
+import io.rhizomatic.kernel.layer.LoadedLayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

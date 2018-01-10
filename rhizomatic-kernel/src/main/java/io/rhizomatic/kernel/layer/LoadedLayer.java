@@ -1,4 +1,4 @@
-package io.rhizomatic.kernel.spi.layer;
+package io.rhizomatic.kernel.layer;
 
 import io.rhizomatic.api.RhizomaticException;
 

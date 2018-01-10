@@ -7,7 +7,7 @@ import io.rhizomatic.api.layer.RzLayer;
 import io.rhizomatic.api.web.WebApp;
 import io.rhizomatic.kernel.layer.LayerManager;
 import io.rhizomatic.kernel.layer.LayerSubsystem;
-import io.rhizomatic.kernel.spi.layer.LoadedLayer;
+import io.rhizomatic.kernel.layer.LoadedLayer;
 import io.rhizomatic.kernel.scan.ClassScanner;
 import io.rhizomatic.kernel.scan.ScannerSubsystem;
 import io.rhizomatic.kernel.spi.inject.InstanceManager;
