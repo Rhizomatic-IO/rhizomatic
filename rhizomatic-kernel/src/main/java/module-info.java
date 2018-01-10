@@ -4,7 +4,6 @@
  */
 module io.rhizomatic.kernel {
 
-    requires java.xml;
     requires annotations;
 
     requires io.rhizomatic.api;
