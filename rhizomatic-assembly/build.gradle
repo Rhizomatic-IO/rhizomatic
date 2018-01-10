@@ -1,0 +1,18 @@
+apply plugin: 'java-gradle-plugin'
+javaModule.name = 'rhizomatic.gradle.assembly'
+
+dependencies {
+    compile gradleApi()
+}
+
+
+gradlePlugin {
+    plugins {
+        assemblyPlugin {
+            id = "io.rhizomatic.assembly"
+            implementationClass = "io.rhizomatic.gradle.assembly.RhizomaticAssemblyPlugin"
+        }
+    }
+}
+
+                                                                        

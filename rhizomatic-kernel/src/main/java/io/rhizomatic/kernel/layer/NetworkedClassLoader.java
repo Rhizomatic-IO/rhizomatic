@@ -1,0 +1,115 @@
+/*
+ * Fabric3
+ * Copyright (c) 2009-2015 Metaform Systems
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Portions originally based on Apache Tuscany 2007
+ * licensed under the Apache 2.0 license.
+ */
+package io.rhizomatic.kernel.layer;
+
+import java.io.IOException;
+import java.net.URL;
+import java.security.SecureClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * A classloader that implements a multi-parent network and delegates exclusively to its parents.
+ */
+public class NetworkedClassLoader extends SecureClassLoader {
+    private final List<ClassLoader> parents = new ArrayList<>();
+
+    /**
+     * Constructs a classloader with a set of resources and a single parent.
+     *
+     * @param name a name used to identify this classloader
+     * @param parent the initial parent
+     */
+    public NetworkedClassLoader(String name, ClassLoader parent, Set<ClassLoader> parents) {
+        super(name, parent);
+        if (parent == null) {
+            throw new IllegalArgumentException("Parent classloader cannot be null");
+        }
+        this.parents.addAll(parents);
+    }
+
+    public URL findResource(String name) {
+        // look in parents
+        for (ClassLoader parent : parents) {
+            URL resource = parent.getResource(name);
+            if (resource != null) {
+                return resource;
+            }
+        }
+        return null;
+    }
+
+    public Enumeration<URL> findResources(String name) throws IOException {
+        // LinkedHashSet because we want all resources in the order found but no duplicates
+        Set<URL> resources = new LinkedHashSet<>();
+        for (ClassLoader parent : parents) {
+            Enumeration<URL> parentResources = parent.getResources(name);
+            while (parentResources.hasMoreElements()) {
+                resources.add(parentResources.nextElement());
+            }
+        }
+        Enumeration<URL> currentResources = super.findResources(name);
+        while (currentResources.hasMoreElements()) {
+            resources.add(currentResources.nextElement());
+        }
+        return Collections.enumeration(resources);
+    }
+
+    public String toString() {
+        return getName();
+    }
+
+    protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        // look for previously loaded classes
+        Class<?> clazz = findLoadedClass(name);
+        if (clazz == null) {
+            // look in the primary parent
+            try {
+                clazz = Class.forName(name, resolve, getParent());
+            } catch (ClassNotFoundException e) {
+                // continue
+            }
+            if (clazz == null) {
+                // look in other parents
+                for (ClassLoader parent : parents) {
+                    try {
+                        clazz = parent.loadClass(name);
+                        break;
+                    } catch (ClassNotFoundException e) {
+                        //noinspection UnnecessaryContinue
+                        continue;
+                    }
+                }
+            }
+            if (clazz == null) {
+                throw new ClassNotFoundException(name);
+            }
+        }
+        if (resolve) {
+            resolveClass(clazz);
+        }
+        return clazz;
+    }
+
+}

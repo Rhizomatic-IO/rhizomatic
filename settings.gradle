@@ -1,0 +1,7 @@
+rootProject.name = 'rhizomatic'
+
+include 'rhizomatic-api', 'rhizomatic-kernel', 'rhizomatic-inject', 'rhizomatic-web'
+
+include 'rhizomatic-reload'
+
+include 'rhizomatic-assembly'
