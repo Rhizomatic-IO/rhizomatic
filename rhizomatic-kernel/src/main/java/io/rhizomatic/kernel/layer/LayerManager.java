@@ -1,5 +1,6 @@
 package io.rhizomatic.kernel.layer;
 
+import io.rhizomatic.api.Monitor;
 import io.rhizomatic.api.RhizomaticException;
 import io.rhizomatic.api.layer.RzLayer;
 import io.rhizomatic.api.layer.RzModule;
@@ -31,6 +32,11 @@ import static java.util.stream.Collectors.toSet;
  * classloaders.
  */
 public class LayerManager {
+    private Monitor monitor;
+
+    public LayerManager(Monitor monitor) {
+        this.monitor = monitor;
+    }
 
     /**
      * Loads the layers into the system.
@@ -45,7 +51,7 @@ public class LayerManager {
 
         Set<LayerListener> listeners = ServiceLoader.load(LayerListener.class).stream().map(ServiceLoader.Provider::get).collect(toSet());
 
-        listeners.forEach(l -> l.onLayerConfiguration(layers));
+        listeners.forEach(l -> l.onLayerConfiguration(layers, monitor));
 
         List<RzLayer> sortedLayers = topologicalSort(layers);
 
@@ -94,7 +100,7 @@ public class LayerManager {
 
         ModuleLayer.Controller controller = ModuleLayer.defineModulesWithManyLoaders(configuration, parentLayers, layerLoader);
 
-        listeners.forEach(l -> l.onLayerLoaded(controller));
+        listeners.forEach(l -> l.onLayerLoaded(controller, monitor));
 
         // open the layer modules to subsystem modules
         for (Module module : controller.layer().modules()) {
@@ -103,7 +109,7 @@ public class LayerManager {
                     controller.addOpens(module, pkg, targetModule);
                 }
             }
-            listeners.forEach(l -> l.onModuleLoaded(module));
+            listeners.forEach(l -> l.onModuleLoaded(module,  monitor));
         }
 
         Set<ModuleReference> moduleReferences = finder.findAll();
