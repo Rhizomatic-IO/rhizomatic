@@ -1,6 +1,7 @@
 package io.rhizomatic.kernel;
 
 import io.rhizomatic.api.Monitor;
+import io.rhizomatic.api.RhizomaticException;
 import io.rhizomatic.api.SystemDefinition;
 import io.rhizomatic.api.layer.RzLayer;
 import io.rhizomatic.api.layer.RzModule;
@@ -52,8 +53,13 @@ public class Rhizomatic {
     public static void main(String... args) {
         long start = System.currentTimeMillis();
 
-        Optional<SystemDefinition> definition = ServiceLoader.load(SystemDefinition.class).findFirst();
 
+        Optional<SystemDefinition> definition;
+        try {
+            definition = ServiceLoader.load(SystemDefinition.class).findFirst();
+        } catch (Exception e) {
+            throw new RhizomaticException("Error loading system definition", e);
+        }
         Map<String, String> base = definition.isPresent() ? definition.get().getConfiguration() : new HashMap<>();
         Map<String, String> configuration = loadConfiguration(base);
 

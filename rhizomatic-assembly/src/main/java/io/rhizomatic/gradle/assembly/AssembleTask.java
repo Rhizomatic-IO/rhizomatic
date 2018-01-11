@@ -28,6 +28,7 @@ import static java.util.stream.Collectors.toMap;
  */
 public class AssembleTask extends DefaultTask {
     private String appGroup = "";  // the group name for application modules
+    private boolean appCopy = true; // true if application modules should be copied
     private String bootstrapModule; // the bootstrap module name (the bootstrap module is determined using the appGroup and bootstrapModule values.
     private String bootstrapName;  // the file name to copy the boostrap module to (exclusive of its extension)
     private boolean includeSourceDir = true;  // true if the src directories of the project containg the plugin configuration should be included
@@ -40,6 +41,15 @@ public class AssembleTask extends DefaultTask {
 
     public void setAppGroup(String appGroup) {
         this.appGroup = appGroup;
+    }
+
+    @Input
+    public boolean isAppCopy() {
+        return appCopy;
+    }
+
+    public void setAppCopy(boolean appCopy) {
+        this.appCopy = appCopy;
     }
 
     @Input
@@ -154,6 +164,10 @@ public class AssembleTask extends DefaultTask {
                 // Rhizomatic module
                 copy(dependency, systemDir);
             } else if (getAppGroup().equals(dependency.getModuleGroup())) {
+                if (!appCopy) {
+                    continue;
+                    // only copy app modules if enabled
+                }
                 if (getBootstrapModule() != null && getBootstrapModule().equals(dependency.getModuleName())) {
                     // bootstrap module
                     for (ResolvedArtifact artifact : dependency.getModuleArtifacts()) {
