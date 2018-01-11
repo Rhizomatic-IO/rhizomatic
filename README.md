@@ -123,7 +123,7 @@ defining layers and modules. For example, a layer can be deployed by defining a 
  
 ### The Assembly Plugin
 
-A system image can be created using the Rhizomatic Gradle assembly plugin. The plugin will create an image from the required Rhzimatic libraries, application modules, and 
+A system image can be created using the Rhizomatic Gradle assembly plugin. The plugin will create an image from the required Rhizomatic libraries, application modules, and 
 transitive third-party dependencies:
 
 ```groovy
