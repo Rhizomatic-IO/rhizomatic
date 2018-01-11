@@ -188,6 +188,9 @@ public class RhizomaticSystem implements SubsystemContext {
 
         Iterable<Subsystem> extensions = ServiceLoader.load(Subsystem.class);
         for (Subsystem extension : extensions) {
+            if (subsystems.contains(extension)){
+                continue; // subsystem is manually installed, e.g. from a test fixture; skip the service loader instance
+            }
             subsystems.add(extension);
         }
         return subsystems;
