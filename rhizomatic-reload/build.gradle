@@ -11,8 +11,8 @@ dependencies {
     compile project(':rhizomatic-api')
     compile project(':rhizomatic-kernel')
 
-    compile('org.zeroturnaround:jr-sdk:7.0.0');
-    compile('org.zeroturnaround:jr-utils:7.0.0');
+    compileOnly 'org.zeroturnaround:jr-sdk:7.0.0'    // JRebel is placed on module path by the agent
+    compileOnly 'org.zeroturnaround:jr-utils:7.0.0'  // JRebel is placed on module path by the agent
 
 }
 
