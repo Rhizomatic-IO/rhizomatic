@@ -1,5 +1,5 @@
-import io.rhizomatic.kernel.spi.layer.LayerListener;
-import io.rhizomatic.reload.jrebel.JRebelLayerListener;
+import io.rhizomatic.kernel.spi.subsystem.Subsystem;
+import io.rhizomatic.reload.jrebel.JRebelSubsystem;
 
 /**
  *
@@ -11,5 +11,6 @@ module io.rhizomatic.reload {
     requires static jr.sdk;      // static since JRebel is not on the module path
     requires static jr.utils;    // static since JRebel is not on the module path
 
-    provides LayerListener with JRebelLayerListener;
+    provides Subsystem with JRebelSubsystem;
+
 }

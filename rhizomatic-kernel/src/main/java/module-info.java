@@ -15,9 +15,12 @@ module io.rhizomatic.kernel {
     exports io.rhizomatic.kernel.spi.inject;
     exports io.rhizomatic.kernel.spi.scan;
     exports io.rhizomatic.kernel.spi.layer;
+    exports io.rhizomatic.kernel.spi.reload;
+    exports io.rhizomatic.kernel.spi.util;
 
     uses io.rhizomatic.api.Monitor;
     uses io.rhizomatic.api.SystemDefinition;
     uses io.rhizomatic.kernel.spi.subsystem.Subsystem;
     uses io.rhizomatic.kernel.spi.layer.LayerListener;
+    
 }

@@ -64,6 +64,7 @@ public class ClassScanner {
      * @param classes the classes to scan
      */
     public ScanIndex scan(Set<Class<?>> classes) {
+        reset();
         classes.forEach(this::addClass);
         ScanIndex.Builder builder = ScanIndex.Builder.newInstance();
         introspectionService.introspect(cache, builder);
@@ -83,5 +84,8 @@ public class ClassScanner {
         cache.add(clazz);
     }
 
+    private void reset(){
+        cache.clear();
+    }
 
 }

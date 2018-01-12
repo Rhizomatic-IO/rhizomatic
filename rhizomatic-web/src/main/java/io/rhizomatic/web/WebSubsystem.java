@@ -4,10 +4,13 @@ import io.rhizomatic.api.Monitor;
 import io.rhizomatic.api.annotations.EndpointPath;
 import io.rhizomatic.api.web.WebApp;
 import io.rhizomatic.kernel.spi.inject.InstanceManager;
+import io.rhizomatic.kernel.spi.reload.ReloadListener;
+import io.rhizomatic.kernel.spi.reload.RzReloader;
 import io.rhizomatic.kernel.spi.scan.Introspector;
 import io.rhizomatic.kernel.spi.subsystem.Subsystem;
 import io.rhizomatic.kernel.spi.subsystem.SubsystemContext;
 import io.rhizomatic.web.http.JettyTransport;
+import io.rhizomatic.web.jersey.RzInjectionManager;
 import io.rhizomatic.web.jersey.RzInjectionManagerFactory;
 import io.rhizomatic.web.scan.WebIntrospector;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -26,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Loads the Web subsystem. Provides a Jetty web server, web app support, and JAX-RS endpoint publishing using Jersey.
@@ -37,6 +41,8 @@ public class WebSubsystem extends Subsystem {
     protected Monitor monitor;
     protected JettyTransport jettyTransport;
 
+    private Map<Object, Holder> containerMap = new ConcurrentHashMap<>();
+
     public WebSubsystem() {
         super("rhizomatic.web");
     }
@@ -47,7 +53,7 @@ public class WebSubsystem extends Subsystem {
 
     public void instantiate(SubsystemContext context) {
         monitor = context.getMonitor();
-        RzInjectionManagerFactory.MONITOR = monitor;
+        RzInjectionManagerFactory.INSTANCE = new RzInjectionManager(monitor);
 
         jettyTransport = new JettyTransport();
         jettyTransport.initialize(context);
@@ -55,6 +61,10 @@ public class WebSubsystem extends Subsystem {
 
         WebIntrospector introspector = new WebIntrospector();
         context.registerService(Introspector.class, introspector);
+    }
+
+    public void assemble(SubsystemContext context) {
+        context.resolve(RzReloader.class).register(new WebReloadListener());
     }
 
     public void applicationInitialize(SubsystemContext context) {
@@ -102,14 +112,20 @@ public class WebSubsystem extends Subsystem {
         return resourceConfigs;
     }
 
-    protected void exportResources(Map<String, ResourceConfig> resourceConfiguration) {
-        for (Map.Entry<String, ResourceConfig> entry : resourceConfiguration.entrySet()) {
+    protected void exportResources(Map<String, ResourceConfig> configurations) {
+        for (Map.Entry<String, ResourceConfig> entry : configurations.entrySet()) {
             String rootPath = entry.getKey();
+
             ResourceConfig resourceConfig = entry.getValue();
+
+            ServletContainer servletContainer = new ServletContainer();
+            for (Object instance : resourceConfig.getSingletons()) {
+                containerMap.put(instance, new Holder(rootPath, servletContainer, resourceConfig));
+            }
 
             ServletHolder servletHolder = new ServletHolder(Source.EMBEDDED);
             servletHolder.setName(RHIZOMATIC_REST + "_" + rootPath);
-            servletHolder.setHeldClass(ServletContainer.class);
+            servletHolder.setServlet(servletContainer);
             servletHolder.setInitOrder(1);
 
             ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
@@ -137,6 +153,37 @@ public class WebSubsystem extends Subsystem {
             jettyTransport.registerHandler(ctx);
 
             monitor.info(() -> "Web app at: " + (contextPath.startsWith("/") ? contextPath : "/" + contextPath));
+        }
+    }
+
+    private class WebReloadListener implements ReloadListener {
+
+        public void onInstanceChanged(Object instance) {
+            Holder holder = containerMap.get(instance);
+            if (holder == null) {
+                return;
+            }
+            Utils.store(holder.resourceConfig, holder.servletContainer.getServletContext(), RHIZOMATIC_REST + "_" + holder.rootPath);
+        }
+
+        public void onInstanceAdded(Object instance) {
+            Holder holder = containerMap.get(instance);
+            if (holder == null) {
+                return;
+            }
+            Utils.store(holder.resourceConfig, holder.servletContainer.getServletContext(), RHIZOMATIC_REST + "_" + holder.rootPath);
+        }
+    }
+
+    private class Holder {
+        String rootPath;
+        ServletContainer servletContainer;
+        ResourceConfig resourceConfig;
+
+        public Holder(String rootPath, ServletContainer servletContainer, ResourceConfig resourceConfig) {
+            this.rootPath = rootPath;
+            this.servletContainer = servletContainer;
+            this.resourceConfig = resourceConfig;
         }
     }
 

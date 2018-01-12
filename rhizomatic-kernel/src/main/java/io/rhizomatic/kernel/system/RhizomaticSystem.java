@@ -7,6 +7,7 @@ import io.rhizomatic.api.layer.RzLayer;
 import io.rhizomatic.api.web.WebApp;
 import io.rhizomatic.kernel.layer.LayerManager;
 import io.rhizomatic.kernel.layer.LayerSubsystem;
+import io.rhizomatic.kernel.reload.ReloaderSubsystem;
 import io.rhizomatic.kernel.scan.ClassScanner;
 import io.rhizomatic.kernel.scan.ScannerSubsystem;
 import io.rhizomatic.kernel.spi.inject.InstanceManager;
@@ -185,6 +186,9 @@ public class RhizomaticSystem implements SubsystemContext {
 
         LayerSubsystem layerSubsystem = new LayerSubsystem();
         subsystems.add(layerSubsystem);
+
+        ReloaderSubsystem reloaderSubsystem = new ReloaderSubsystem();
+        subsystems.add(reloaderSubsystem);
 
         Iterable<Subsystem> extensions = ServiceLoader.load(Subsystem.class);
         for (Subsystem extension : extensions) {
