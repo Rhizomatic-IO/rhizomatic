@@ -243,4 +243,4 @@ dependencies {
 
 Install JRebel, enable incremental compile in your IDE and launch the image:
 
-```java  -agentpath:<path to JRebel agen>  -p libraries:reload:system:<path to system definition> -m io.rhizomatic.kernel/io.rhizomatic.kernel.Rhizomatic``` 
+```java  -agentpath:<path to JRebel agent>  -p libraries:reload:system:<path to system definition> -m io.rhizomatic.kernel/io.rhizomatic.kernel.Rhizomatic``` 
