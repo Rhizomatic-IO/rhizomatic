@@ -205,3 +205,42 @@ module bootstrap.dev {
 
 ``` 
 To enable the monitor implementation, the module must be laoded as a library (not an application module) since monitor messages are emitted during application boot.
+
+## Dynamic Code Changes
+
+Rhizomatic integrates directly with [JRebel](https://zeroturnaround.com/software/jrebel/) and an IDE's incremental compilation to provide instantaneous application updates
+without the need to perform a module reload. As code is changed or added in the IDE, services and endpoints will be transparently updated in-place. 
+
+Use the Rhizomatic Assembly plugin to create a reloadable runtime image as part of a Gradle build:
+
+```groovy
+apply plugin: 'io.rhizomatic.assembly'
+
+def rzVersion = '1.0-SNAPSHOT'
+
+rhizomaticAssembly {
+    bootstrapModule = "bootstrap-message-dev"
+    bootstrapName = "bootstrap"
+    appGroup = "io.rhizomatic.samples"
+    appCopy = false;
+    reload = true;
+}
+
+dependencies {
+    compile group: 'io.rhizomatic', name: 'rhizomatic-kernel', version: rzVersion
+    compile group: 'io.rhizomatic', name: 'rhizomatic-inject', version: rzVersion
+    compile group: 'io.rhizomatic', name: 'rhizomatic-web', version: rzVersion
+    compile(group: 'io.rhizomatic', name: 'rhizomatic-reload', version: rzVersion) {
+        transitive = false
+    }
+
+    compile project(":webapp")
+    compile project(":message-service")
+    compile project(":bootstrap-message-dev")
+}
+
+``` 
+
+Install JRebel, enable incremental compile in your IDE and launch the image:
+
+```java  -agentpath:<path to JRebel agen>  -p libraries:reload:system:<path to system definition> -m io.rhizomatic.kernel/io.rhizomatic.kernel.Rhizomatic``` 
