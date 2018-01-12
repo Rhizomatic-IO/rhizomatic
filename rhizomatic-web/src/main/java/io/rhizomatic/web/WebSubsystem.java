@@ -41,7 +41,8 @@ public class WebSubsystem extends Subsystem {
     protected Monitor monitor;
     protected JettyTransport jettyTransport;
 
-    private Map<Object, Holder> containerMap = new ConcurrentHashMap<>();
+    private Map<Object, Holder> instanceToContainers = new ConcurrentHashMap<>();  // instance to the Jersey servlet they are running in
+    private Map<Object, Holder> pathToContainers = new ConcurrentHashMap<>();  // root path (web path) to the Jersey servlet that contains the endpoints
 
     public WebSubsystem() {
         super("rhizomatic.web");
@@ -119,8 +120,11 @@ public class WebSubsystem extends Subsystem {
             ResourceConfig resourceConfig = entry.getValue();
 
             ServletContainer servletContainer = new ServletContainer();
+            Holder holder = new Holder(rootPath, servletContainer, resourceConfig);
+            pathToContainers.put(rootPath, holder); // track the root path and container for reloading (resource additions)
             for (Object instance : resourceConfig.getSingletons()) {
-                containerMap.put(instance, new Holder(rootPath, servletContainer, resourceConfig));
+                // track the instance and the container it is running in for reloading
+                instanceToContainers.put(instance, holder);
             }
 
             ServletHolder servletHolder = new ServletHolder(Source.EMBEDDED);
@@ -162,8 +166,13 @@ public class WebSubsystem extends Subsystem {
     private class WebReloadListener implements ReloadListener {
 
         public void onInstanceChanged(Object instance) {
-            Holder holder = containerMap.get(instance);
+            if (notJaxRS(instance)) {
+                return;
+            }
+            Holder holder = instanceToContainers.get(instance);
             if (holder == null) {
+                // if the instance is not tracked, it could be that is did not have JAX-RS annotations prior to the change
+                onInstanceAdded(instance);
                 return;
             }
             setContext(holder);
@@ -171,11 +180,22 @@ public class WebSubsystem extends Subsystem {
         }
 
         public void onInstanceAdded(Object instance) {
-            Holder holder = containerMap.get(instance);
+            if (notJaxRS(instance)) {
+                return;
+            }
+            String rootPath = getRootPath(instance);
+
+            Holder holder = pathToContainers.get(rootPath);
             if (holder == null) {
+                // TODO support adding new context?
                 return;
             }
             setContext(holder);
+            if (!holder.resourceConfig.isRegistered(instance)) {
+                holder.resourceConfig.register(instance);
+                // passing null is important otherwise JRebel throws an error; the ResourceConfig will be pulled from the servlet context
+                holder.servletContainer.reload(null);
+            }
         }
 
         private void setContext(Holder holder) {
@@ -185,6 +205,22 @@ public class WebSubsystem extends Subsystem {
         }
 
     }
+
+    private boolean notJaxRS(Object instance) {
+        Class<?> clazz = instance.getClass();
+        return clazz.getAnnotation(Path.class) == null && clazz.getAnnotation(Provider.class) == null;
+    }
+
+    private String getRootPath(Object instance) {
+        Class<?> clazz = instance.getClass();
+        Module module = clazz.getModule();
+        String rootPath = "api";
+        if (module != null && module.getAnnotation(EndpointPath.class) != null) {
+            rootPath = module.getAnnotation(EndpointPath.class).value();
+        }
+        return rootPath;
+    }
+
 
     private class Holder {
         String rootPath;
