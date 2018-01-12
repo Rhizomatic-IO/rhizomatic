@@ -6,6 +6,8 @@ project.description 'Rhizomatic'
 
 sourceCompatibility = 1.9
 
+def junitVersion = '5.0.0'
+
 subprojects {
     group 'io.rhizomatic'
     version '1.0-SNAPSHOT'
@@ -19,9 +21,13 @@ subprojects {
     apply plugin: 'com.zyxist.chainsaw'
     apply plugin: 'maven-publish'
 
+//    javaModule.extraTestModules = ['']
+
     dependencies {
         compile group: 'org.jetbrains', name: 'annotations', version: '15.0'
-        testCompile group: 'junit', name: 'junit', version: '4.12'
+        testCompile 'org.junit.jupiter:junit-jupiter-api:' + junitVersion
+        testRuntime 'org.junit.jupiter:junit-jupiter-engine:' + junitVersion
+//        testCompile group: 'junit', name: 'junit', version: '4.12'
     }
 
     publishing {

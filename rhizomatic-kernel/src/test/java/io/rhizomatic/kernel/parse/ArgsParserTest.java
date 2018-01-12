@@ -1,9 +1,9 @@
 package io.rhizomatic.kernel.parse;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
@@ -13,17 +13,17 @@ public class ArgsParserTest {
     @Test
     public void parseParams() {
         ArgsParser.Params params = ArgsParser.parseParams("-c", "c1");
-        Assert.assertEquals("c1", params.configPath);
+        Assertions.assertEquals("c1", params.configPath);
 
         params = ArgsParser.parseParams("-l", "l1");
-        Assert.assertEquals("l1", params.layersPath);
+        Assertions.assertEquals("l1", params.layersPath);
 
         params = ArgsParser.parseParams("-m", "m1");
-        Assert.assertEquals("m1", params.modulePath);
+        Assertions.assertEquals("m1", params.modulePath);
 
         params = ArgsParser.parseParams("-c", "c1", "-l", "l1");
-        Assert.assertEquals("c1", params.configPath);
-        Assert.assertEquals("l1", params.layersPath);
+        Assertions.assertEquals("c1", params.configPath);
+        Assertions.assertEquals("l1", params.layersPath);
 
         try {
             ArgsParser.parseParams("-c", "c1", "-l", "l1", "-m", "m1");

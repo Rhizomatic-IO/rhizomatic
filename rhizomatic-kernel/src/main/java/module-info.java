@@ -18,9 +18,13 @@ module io.rhizomatic.kernel {
     exports io.rhizomatic.kernel.spi.reload;
     exports io.rhizomatic.kernel.spi.util;
 
+//    exports io.rhizomatic.kernel.parse;
+//    exports io.rhizomatic.kernel.layer;
+
     uses io.rhizomatic.api.Monitor;
     uses io.rhizomatic.api.SystemDefinition;
     uses io.rhizomatic.kernel.spi.subsystem.Subsystem;
     uses io.rhizomatic.kernel.spi.layer.LayerListener;
-    
+
+
 }

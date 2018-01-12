@@ -1,5 +1,5 @@
 apply plugin: 'java-gradle-plugin'
-javaModule.name = 'rhizomatic.gradle.assembly'
+javaModule.name = 'io.rhizomatic.gradle.assembly'
 
 dependencies {
     compile gradleApi()

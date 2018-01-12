@@ -1,5 +1,4 @@
-//apply plugin: 'war'
-javaModule.name = 'rhizomatic.inject'
+javaModule.name = 'io.rhizomatic.inject'
 
 def guiceVersion = '4.1.0'
 

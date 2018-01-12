@@ -1,4 +1,4 @@
-javaModule.name = 'rhizomatic.kernel'
+javaModule.name = 'io.rhizomatic.kernel'
 
 dependencies {
     compile project(':rhizomatic-api')

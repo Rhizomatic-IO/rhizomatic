@@ -1,7 +1,7 @@
 package io.rhizomatic.api.layer;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -26,11 +26,11 @@ public class LayerPathBuilderTest {
         RzLayer layer = builder.build();
 
         // verify module location is the root compilation path of this class
-        Assert.assertEquals(dir, layer.getModules().get(0).getLocation());
+        Assertions.assertEquals(dir, layer.getModules().get(0).getLocation());
     }
 
     private Path getRootCompilePath() throws URISyntaxException {
-        Path dir = Paths.get(getClass().getResource(".").toURI());
+        Path dir = Paths.get(getClass().getResource("").toURI());
         int count = getClass().getPackageName().split("\\.").length;
         for (int i = 0; i < count; i++) {
             dir = dir.getParent();

@@ -1,10 +1,10 @@
 package io.rhizomatic.api.layer;
 
 import io.rhizomatic.api.internal.PathUtils;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 
@@ -16,13 +16,13 @@ public class UnixPathUtilsTest {
     @Test
     public void verifyToSegments() {
         String[] segments = PathUtils.toSegments(Paths.get("foo/bar/baz"));
-        Assert.assertEquals("foo", segments[0]);
-        Assert.assertEquals("bar", segments[1]);
-        Assert.assertEquals("baz", segments[2]);
+        Assertions.assertEquals("foo", segments[0]);
+        Assertions.assertEquals("bar", segments[1]);
+        Assertions.assertEquals("baz", segments[2]);
     }
 
-    @Before
+    @BeforeEach
     public void windowsOnly() {
-        Assume.assumeTrue(!System.getProperty("os.name").startsWith("Windows"));
+        Assumptions.assumeTrue(!System.getProperty("os.name").startsWith("Windows"));
     }
 }

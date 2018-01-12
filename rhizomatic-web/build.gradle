@@ -1,4 +1,4 @@
-javaModule.name = 'rhizomatic.web'
+javaModule.name = 'io.rhizomatic.web'
 
 def jerseyVersion = '2.26'
 

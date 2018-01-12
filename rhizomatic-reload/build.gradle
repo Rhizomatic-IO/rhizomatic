@@ -1,5 +1,5 @@
 //apply plugin: 'war'
-javaModule.name = 'rhizomatic.reload'
+javaModule.name = 'io.rhizomatic.reload'
 
 repositories {
     maven {

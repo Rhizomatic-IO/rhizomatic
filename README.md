@@ -1,5 +1,7 @@
 
-# Rhizomatic
+# Rhizomatic  
+
+[![Build Status](https://travis-ci.org/Rhizomatic-IO/rhizomatic.svg?branch=master)](https://travis-ci.org/Rhizomatic-IO/rhizomatic)
 
 Rhizomatic is a runtime built on the Java Platform Module System (JPMS). It provides an extensibility model, a service programming model based on Guice, REST endpoint publishing 
 using JAX-RS annotations, and a web application server.
