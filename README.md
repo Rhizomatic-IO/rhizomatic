@@ -1,8 +1,8 @@
 
 # Rhizomatic
 
-Rhizomatic is a runtime built on the Java Platform Module System. It provides an extensibility model, service injection framework based on Guice, REST endpoint publishing using
-Jersey JAX-RS, and a web application server.
+Rhizomatic is a runtime built on the Java Platform Module System (JPMS). It provides an extensibility model, a service programming model based on Guice, REST endpoint publishing 
+using JAX-RS annotations, and a web application server.
 
 ## Creating a Service
 Services are implemented as simple Java classes using `@Service`. Their dependencies are injected using Guice and therefore adhere to Guice IoC semantics:
