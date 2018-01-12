@@ -2,7 +2,7 @@ import io.rhizomatic.kernel.spi.subsystem.Subsystem;
 import io.rhizomatic.reload.jrebel.JRebelSubsystem;
 
 /**
- *
+ * Provides class reloading and additions via JRebel.
  */
 module io.rhizomatic.reload {
 

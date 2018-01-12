@@ -62,6 +62,7 @@ public class WebSubsystem extends Subsystem {
 
         WebIntrospector introspector = new WebIntrospector();
         context.registerService(Introspector.class, introspector);
+        monitor.info(() -> "Web subsystem enabled");
     }
 
     public void assemble(SubsystemContext context) {

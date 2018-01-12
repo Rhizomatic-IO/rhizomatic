@@ -42,6 +42,10 @@ public class JRebelSubsystem extends Subsystem {
         super("rhizomatic.jrebel");
     }
 
+    public void instantiate(SubsystemContext context) {
+        context.getMonitor().info(() -> "JRebel class reloading enabled");
+    }
+
     public void assemble(SubsystemContext context) {
         monitor = context.getMonitor();
         reloader = context.resolve(RzReloader.class);
@@ -110,7 +114,6 @@ public class JRebelSubsystem extends Subsystem {
                     reloader.classChanged(clazz);
                 }
             });
-
         } catch (IOException e) {
             monitor.severe(() -> "Error initializing reloader subsystem. Reloading will be disabled.", e);
         }
