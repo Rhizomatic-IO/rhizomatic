@@ -25,6 +25,9 @@ public class RhizomaticAssemblyPlugin implements Plugin<Project> {
         task.setDescription("Assembles a Rhizomatic runtime image");
         task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
 
+        for (Task javaTask : javaTasks) {
+            System.out.println(javaTask.getName());
+        }
         task.dependsOn(javaTasks.iterator().next());
     }
 

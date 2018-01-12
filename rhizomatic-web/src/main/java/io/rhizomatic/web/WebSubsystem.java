@@ -156,6 +156,9 @@ public class WebSubsystem extends Subsystem {
         }
     }
 
+    /**
+     * Listener to reload resource endpoints.
+     */
     private class WebReloadListener implements ReloadListener {
 
         public void onInstanceChanged(Object instance) {
@@ -163,7 +166,8 @@ public class WebSubsystem extends Subsystem {
             if (holder == null) {
                 return;
             }
-            Utils.store(holder.resourceConfig, holder.servletContainer.getServletContext(), RHIZOMATIC_REST + "_" + holder.rootPath);
+            setContext(holder);
+
         }
 
         public void onInstanceAdded(Object instance) {
@@ -171,8 +175,15 @@ public class WebSubsystem extends Subsystem {
             if (holder == null) {
                 return;
             }
+            setContext(holder);
+        }
+
+        private void setContext(Holder holder) {
+            // The resource context needs to be reset so it is available when the web context is reloaded; Utils.store() removes the context
+            // when it is called so it is no longer in the servlet context after the initial load has completed.
             Utils.store(holder.resourceConfig, holder.servletContainer.getServletContext(), RHIZOMATIC_REST + "_" + holder.rootPath);
         }
+
     }
 
     private class Holder {

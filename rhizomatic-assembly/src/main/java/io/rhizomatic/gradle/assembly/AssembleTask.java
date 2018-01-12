@@ -27,12 +27,15 @@ import static java.util.stream.Collectors.toMap;
  * Assembles the Rhizomatic runtime image.
  */
 public class AssembleTask extends DefaultTask {
+    public static final String RHIZOMATIC_RELOAD = "rhizomatic-reload";
+    public static final String RHIZOMATIC_GROUP = "io.rhizomatic";
     private String appGroup = "";  // the group name for application modules
     private boolean appCopy = true; // true if application modules should be copied
     private String bootstrapModule; // the bootstrap module name (the bootstrap module is determined using the appGroup and bootstrapModule values.
     private String bootstrapName;  // the file name to copy the boostrap module to (exclusive of its extension)
     private boolean includeSourceDir = true;  // true if the src directories of the project containg the plugin configuration should be included
     private boolean useArchives = false;  // true if the app module archives are used instead of exploded format
+    private boolean reload = false;
 
     @Input
     public String getAppGroup() {
@@ -86,6 +89,15 @@ public class AssembleTask extends DefaultTask {
 
     public void setUseArchives(boolean useArchives) {
         this.useArchives = useArchives;
+    }
+
+    @Input
+    public boolean isReload() {
+        return reload;
+    }
+
+    public void setReload(boolean reload) {
+        this.reload = reload;
     }
 
     @TaskAction
@@ -155,14 +167,26 @@ public class AssembleTask extends DefaultTask {
         Map<String, ProjectDependency> projectDependencies = new HashMap<>();
         configuration.getDependencies().forEach(dependency -> {
             if (dependency instanceof ProjectDependency) {
+                if (RHIZOMATIC_RELOAD.equals(dependency.getName()) && RHIZOMATIC_GROUP.equals(dependency.getGroup())) {
+                    // do not include transitive dependencies of reload since JRebel is added on the boot module path
+                    return;
+                }
                 projectDependencies.put(dependency.getGroup() + ":" + dependency.getName(), (ProjectDependency) dependency);
             }
         });
         // Copy runtime image: Rhizomatic modules to /system, application modules to /app; otherwise to /libraries
         for (ResolvedDependency dependency : transitiveDependencies.values()) {
-            if ("io.rhizomatic".equals(dependency.getModuleGroup())) {
+            if (RHIZOMATIC_GROUP.equals(dependency.getModuleGroup())) {
                 // Rhizomatic module
-                copy(dependency, systemDir);
+                if (RHIZOMATIC_RELOAD.equals(dependency.getModuleName())) {
+                    // reload module, if reload is enabled, copy it
+                    if (reload) {
+                        File reloadDir = new File(imageDir, "reload");
+                        copy(dependency, reloadDir);
+                    }
+                } else {
+                    copy(dependency, systemDir);
+                }
             } else if (getAppGroup().equals(dependency.getModuleGroup())) {
                 if (!appCopy) {
                     continue;
