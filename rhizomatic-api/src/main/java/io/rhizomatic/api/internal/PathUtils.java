@@ -1,9 +1,14 @@
 package io.rhizomatic.api.internal;
 
+import io.rhizomatic.api.RhizomaticException;
+
+import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * Utilities for building layer configurations.
@@ -51,4 +56,19 @@ public class PathUtils {
         return pos == array.length - fragment.length;
     }
 
+    public static Path walkParents(Predicate<Path> predicate) {
+        try {
+            Path anchor = Paths.get(predicate.getClass().getResource("").toURI());
+            while (anchor.getParent() != null) {
+                anchor = anchor.getParent();
+                if (predicate.test(anchor)) {
+                    return anchor;
+                }
+            }
+        } catch (URISyntaxException e) {
+            throw new RhizomaticException("Unable top determine path location", e);
+        }
+        throw new RhizomaticException("Path location not found");
+
+    }
 }

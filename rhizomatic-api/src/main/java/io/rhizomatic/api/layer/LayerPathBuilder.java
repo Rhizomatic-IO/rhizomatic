@@ -8,6 +8,9 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.function.Predicate;
+
+import static io.rhizomatic.api.internal.PathUtils.walkParents;
 
 /**
  * Builds a layer definition based on a root path. The included module locations can be customized based on inclusions, exclusions and Java class file directory partial paths.
@@ -34,6 +37,14 @@ public class LayerPathBuilder {
      */
     public LayerPathBuilder root(Path root) {
         this.root = root;
+        return this;
+    }
+
+    /**
+     * Finds the root path to start traversal from by walking the path hierarchy from the current context location until the predicate is satisfied.
+     */
+    public LayerPathBuilder findRoot(Predicate<Path> predicate) {
+        this.root = walkParents(predicate);
         return this;
     }
 

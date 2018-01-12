@@ -10,6 +10,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
+
+import static io.rhizomatic.api.internal.PathUtils.walkParents;
 
 /**
  * Builds a web application definition based on a root path. The included webapp locations can be customized based on inclusions, exclusions and Java class file directory partial
@@ -42,6 +45,14 @@ public class WebAppPathBuilder {
      */
     public WebAppPathBuilder root(Path root) {
         this.root = root;
+        return this;
+    }
+
+    /**
+     * Finds the root path to start traversal from by walking the path hierarchy from the current context location until the predicate is satisfied.
+     */
+    public WebAppPathBuilder findRoot(Predicate<Path> predicate) {
+        this.root = walkParents(predicate);
         return this;
     }
 
