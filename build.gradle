@@ -26,6 +26,8 @@ subprojects {
 
 //    javaModule.extraTestModules = ['']
 
+    tasks.withType(Javadoc).all { enabled = false } // disable javadoc due to Gradle Java9 issue
+
     dependencies {
         compile group: 'org.jetbrains', name: 'annotations', version: '15.0'
         testCompile 'org.junit.jupiter:junit-jupiter-api:' + junitVersion
