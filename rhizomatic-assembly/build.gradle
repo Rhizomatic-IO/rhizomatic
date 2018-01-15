@@ -1,10 +1,11 @@
 apply plugin: 'java-gradle-plugin'
+apply plugin: "com.gradle.plugin-publish"
+
 javaModule.name = 'io.rhizomatic.gradle.assembly'
 
 dependencies {
     compile gradleApi()
 }
-
 
 gradlePlugin {
     plugins {
@@ -15,4 +16,17 @@ gradlePlugin {
     }
 }
 
+pluginBundle {
+	website = 'https://github.com/rhizomatic-io'
+	vcsUrl = 'https://github.com/rhizomatic-io/rhizomatic'
+	plugins {
+        assemblyPlugin {
+			id = 'io.rhizomatic.assembly'
+			displayName = 'Rhizomatic Image Assembly Plugin'
+			description = 'Builds a Rhizomatic system image'
+			tags = ['jigsaw', 'modules', 'java9', 'jpms', 'guice', 'jaxrs']
+			version = project.version
+		}
+	}
+}
                                                                         

@@ -1,5 +1,7 @@
 plugins {
     id 'com.zyxist.chainsaw' version '0.1.3'
+    id 'com.gradle.plugin-publish' version '0.9.7'
+    id "io.spring.bintray" version "0.9.0"
 }
 
 project.description 'Rhizomatic'
@@ -10,7 +12,7 @@ def junitVersion = '5.0.0'
 
 subprojects {
     group 'io.rhizomatic'
-    version '1.0-SNAPSHOT'
+    version '0.1'
 
     repositories {
         jcenter()
@@ -20,6 +22,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'com.zyxist.chainsaw'
     apply plugin: 'maven-publish'
+    apply plugin: 'io.spring.bintray'
 
 //    javaModule.extraTestModules = ['']
 
@@ -27,16 +30,85 @@ subprojects {
         compile group: 'org.jetbrains', name: 'annotations', version: '15.0'
         testCompile 'org.junit.jupiter:junit-jupiter-api:' + junitVersion
         testRuntime 'org.junit.jupiter:junit-jupiter-engine:' + junitVersion
-//        testCompile group: 'junit', name: 'junit', version: '4.12'
     }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allJava
+    }
+
+    task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from "../noitce/javadoc/README.md"
+    }
+
+
+    def pomConfig = {
+        licenses {
+            license {
+                name 'MIT'
+                url 'https://opensource.org/licenses/MIT'
+                distribution 'repo'
+            }
+        }
+        developers {
+            developer {
+                id 'rhizomatic-io'
+                name 'Rhizomatic'
+                email "dev@null.com"
+            }
+        }
+
+        scm {
+            url 'https://github.com/Rhizomatic-IO/rhizomatic'
+        }
+    }
+
 
     publishing {
         publications {
             mavenJava(MavenPublication) {
                 from components.java
+                artifact sourcesJar
+                artifact javadocJar
+                pom.withXml {
+                    def root = asNode()
+                    root.appendNode('description', 'Rhizomatic modular runtime')
+                    root.appendNode('name', 'Rhizomatic')
+                    root.appendNode('url', 'https://github.com/Rhizomatic-IO/rhizomatic')
+                    root.children().last() + pomConfig
+                }
             }
         }
     }
+
+    // secrets stored in ~/.gradle/gradle.properties
+    def bUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : 'undefined'
+    def bKey = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : 'undefined'
+
+    bintray {
+
+        bintrayUser = bUser
+        bintrayKey = bKey
+
+        repo = 'Rhizomatic'
+        publication = 'mavenJava'
+
+        org = 'rhizomatic'
+        labels = ['JPMS', 'Java9', 'Jigsaw', 'microservices']
+        licenses = ['MIT']
+        overrideOnUpload = false // should the upload task override existing artifacts?
+
+        websiteUrl = 'https://github.com/Rhizomatic-IO/rhizomatic'
+        issueTrackerUrl = 'https://github.com/Rhizomatic-IO/rhizomatic/issues'
+        vcsUrl = 'https://github.com/Rhizomatic-IO/rhizomatic.git'
+
+        // ossrhUser = // if syncing to Maven Central
+        // ossrhPassword = //...
+        // gpgPassphrase
+    }
+
+
 }
 
 
