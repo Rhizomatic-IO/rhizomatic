@@ -218,7 +218,7 @@ Use the Rhizomatic Assembly plugin to create a reloadable runtime image as part 
 ```groovy
 apply plugin: 'io.rhizomatic.assembly'
 
-def rzVersion = '1.0-SNAPSHOT'
+def rzVersion = '0.1'
 
 rhizomaticAssembly {
     bootstrapModule = "bootstrap-message-dev"
