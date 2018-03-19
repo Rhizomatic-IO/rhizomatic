@@ -14,6 +14,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.JavaCompile;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ public class AssembleTask extends DefaultTask {
     private boolean includeSourceDir = true;  // true if the src directories of the project containg the plugin configuration should be included
     private boolean useArchives = false;  // true if the app module archives are used instead of exploded format
     private boolean reload = false;
+    private String[] _patchModules = new String[0];
 
     @Input
     public String getAppGroup() {
@@ -100,6 +102,15 @@ public class AssembleTask extends DefaultTask {
         this.reload = reload;
     }
 
+    @Input
+    public String[] getPatchModules() {
+        return _patchModules;
+    }
+
+    public void setPatchModules(String[] patchModules) {
+        this._patchModules = (String[]) patchModules;
+    }
+
     @TaskAction
     public void assemble() {
         Logger logger = Logging.getLogger("rhizomatic-assembly");
@@ -158,10 +169,15 @@ public class AssembleTask extends DefaultTask {
 
         File systemDir = new File(imageDir, "system");
         systemDir.mkdirs();
+
         File librariesDir = new File(imageDir, "libraries");
         librariesDir.mkdirs();
+
         File appDir = new File(imageDir, "app");
         appDir.mkdirs();
+
+        File patchLibrariesDir = new File(imageDir, "plibraries");
+        patchLibrariesDir.mkdirs();
 
         Configuration configuration = project.getConfigurations().getByName("compile");
         Map<String, ProjectDependency> projectDependencies = new HashMap<>();
@@ -229,8 +245,13 @@ public class AssembleTask extends DefaultTask {
                     }
                 }
             } else {
-                // library module
-                copy(dependency, librariesDir);
+                if (Arrays.stream(_patchModules).anyMatch(name -> dependency.getModuleName().equals(name))) {
+                    // patch library module
+                    copy(dependency, patchLibrariesDir);
+                } else {
+                    // library module
+                    copy(dependency, librariesDir);
+                }
             }
         }
 
