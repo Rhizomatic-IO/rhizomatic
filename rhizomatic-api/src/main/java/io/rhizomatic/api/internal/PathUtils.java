@@ -59,6 +59,7 @@ public class PathUtils {
     public static Path walkParents(Predicate<Path> predicate) {
         try {
             Path anchor = Paths.get(predicate.getClass().getResource("").toURI());
+            anchor = anchor.normalize();
             while (anchor.getParent() != null) {
                 anchor = anchor.getParent();
                 if (predicate.test(anchor)) {
