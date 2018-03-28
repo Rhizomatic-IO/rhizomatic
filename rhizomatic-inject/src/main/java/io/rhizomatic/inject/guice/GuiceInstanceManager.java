@@ -160,8 +160,7 @@ public class GuiceInstanceManager implements InstanceManager {
             if (isMultiplicity(interfaze)) {
                 return true;
             }
-
         }
-        return false;
+        return type.getSuperclass() != null && isMultiplicity(type.getSuperclass());
     }
 }
