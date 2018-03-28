@@ -77,6 +77,7 @@ public class GuiceInstanceManager implements InstanceManager {
                         // order the multi-bindings are loaded in the module determines injection order
                         for (Class<?> implClass : entry.getValue()) {
                             builder.addBinding().to(implClass).in(Scopes.SINGLETON);
+                            bind(implClass).in(Scopes.SINGLETON);    // force singleton .cf https://github.com/google/guice/issues/791
                         }
                     }
                 }
