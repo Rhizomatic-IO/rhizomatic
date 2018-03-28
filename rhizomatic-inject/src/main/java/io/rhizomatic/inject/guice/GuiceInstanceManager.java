@@ -11,11 +11,13 @@ import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.util.Types;
 import io.rhizomatic.api.RhizomaticException;
+import io.rhizomatic.api.annotations.Multiplicity;
 import io.rhizomatic.kernel.spi.inject.InstanceManager;
 import io.rhizomatic.kernel.spi.layer.LoadedLayer;
 import io.rhizomatic.kernel.spi.scan.ScanIndex;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -69,11 +71,22 @@ public class GuiceInstanceManager implements InstanceManager {
                     if (entry.getValue().isEmpty()) {
                         //noinspection UnnecessaryContinue
                         continue;
-                    } else if (entry.getValue().size() == 1) {
+                    } else if (entry.getValue().size() == 1 && !isMultiplicity(entry.getKey())) {
                         Class implClass = entry.getValue().get(0);
                         bind(entry.getKey()).to(implClass).in(Scopes.SINGLETON);
                     } else {
-                        Multibinder builder = Multibinder.newSetBinder(binder(), entry.getKey());
+                        Class<?> key = entry.getKey();
+                        Multibinder builder;
+                        if (key.getTypeParameters().length > 0) {
+                            // bind generic params to wildcard types
+                            Type[] paramTypes = new Type[key.getTypeParameters().length];
+                            for (int i = 0; i < key.getTypeParameters().length; i++) {
+                                paramTypes[i] = Types.subtypeOf(Object.class);
+                            }
+                            builder = Multibinder.newSetBinder(binder(), TypeLiteral.get(Types.newParameterizedType(key, paramTypes)));
+                        } else {
+                            builder = Multibinder.newSetBinder(binder(), key);
+                        }
                         // order the multi-bindings are loaded in the module determines injection order
                         for (Class<?> implClass : entry.getValue()) {
                             builder.addBinding().to(implClass).in(Scopes.SINGLETON);
@@ -137,5 +150,17 @@ public class GuiceInstanceManager implements InstanceManager {
         if (!wired) {
             throw new IllegalStateException(getClass().getName() + " not wired");
         }
+    }
+
+    private boolean isMultiplicity(Class<?> type) {
+        if (type.isAnnotationPresent(Multiplicity.class)) {
+            return true;
+        }
+        for (Class<?> interfaze : type.getInterfaces()) {
+            if (interfaze.isAnnotationPresent(Multiplicity.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
