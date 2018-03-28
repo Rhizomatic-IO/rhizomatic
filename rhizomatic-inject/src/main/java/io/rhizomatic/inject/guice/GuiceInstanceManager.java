@@ -157,9 +157,10 @@ public class GuiceInstanceManager implements InstanceManager {
             return true;
         }
         for (Class<?> interfaze : type.getInterfaces()) {
-            if (interfaze.isAnnotationPresent(Multiplicity.class)) {
+            if (isMultiplicity(interfaze)) {
                 return true;
             }
+
         }
         return false;
     }
