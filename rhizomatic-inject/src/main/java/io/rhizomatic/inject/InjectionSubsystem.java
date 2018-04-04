@@ -13,7 +13,7 @@ import java.util.Set;
  * Loads the Injection subsystem. Provides service injection and wiring using Guice.
  */
 public class InjectionSubsystem extends Subsystem {
-    private static final Set<String> OPENS = Set.of("guice", "io.rhizomatic.inject");
+    private static final Set<String> OPENS = Set.of("com.google.guice", "io.rhizomatic.inject");
     private GuiceInstanceManager instanceManager;
 
     public InjectionSubsystem() {

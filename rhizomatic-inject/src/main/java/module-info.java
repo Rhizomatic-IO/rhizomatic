@@ -11,8 +11,7 @@ module io.rhizomatic.inject {
     requires io.rhizomatic.api;
     requires io.rhizomatic.kernel;
     requires javax.inject;
-    requires guice;
-    requires guice.multibindings;
+    requires com.google.guice;
     requires static annotations;
 
     uses com.google.inject.Module;

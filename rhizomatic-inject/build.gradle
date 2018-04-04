@@ -1,6 +1,6 @@
 javaModule.name = 'io.rhizomatic.inject'
 
-def guiceVersion = '4.1.0'
+def guiceVersion = '4.2.0'
 
 dependencies {
     compile project(':rhizomatic-api')
@@ -10,10 +10,12 @@ dependencies {
 
     compile("com.google.inject:guice:${guiceVersion}:no_aop") {
         exclude module: 'aopalliance'
+        exclude group: 'com.google.code.findbugs'
     }
 
     compile("com.google.inject.extensions:guice-multibindings:${guiceVersion}") {
         exclude group: 'com.google.inject', module: 'guice'
+        exclude group: 'com.google.code.findbugs'
     }
 
 
