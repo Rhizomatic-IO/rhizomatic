@@ -1,5 +1,6 @@
 package io.rhizomatic.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import io.rhizomatic.api.Monitor;
 import io.rhizomatic.api.annotations.EndpointPath;
@@ -25,7 +26,11 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.servlet.internal.Utils;
 
 import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -110,7 +115,10 @@ public class WebSubsystem extends Subsystem {
             EndpointPath endpointPath = endpoint.getClass().getModule().getAnnotation(EndpointPath.class);
             String rootPath = endpointPath != null ? endpointPath.value() : "api";
             ResourceConfig resourceConfig = resourceConfigs.computeIfAbsent(rootPath, k -> new ResourceConfig());
-            resourceConfig.register(JacksonJsonProvider.class);
+
+            JacksonJsonProvider jacksonJsonProvider = createJacksonProvider(instanceManager);
+
+            resourceConfig.registerInstances(jacksonJsonProvider);
             resourceConfig.register(endpoint);
         }
         return resourceConfigs;
@@ -161,6 +169,34 @@ public class WebSubsystem extends Subsystem {
 
             monitor.info(() -> "Web app at: " + (contextPath.startsWith("/") ? contextPath : "/" + contextPath));
         }
+    }
+
+    /**
+     * Creates a Jackson provider that can retrieve an application-provided ObjectMapper.
+     */
+    private JacksonJsonProvider createJacksonProvider(InstanceManager instanceManager) {
+        return new JacksonJsonProvider() {
+            @SuppressWarnings("unchecked")
+            // overrides the mapper locator method to resolve the instance from the instance manager
+            protected ObjectMapper _locateMapperViaProvider(Class<?> type, MediaType mediaType) {
+                Set<?> providers = instanceManager.resolveQualifiedTypes(Provider.class);
+                for (Object provider : providers) {
+                    if (provider instanceof ContextResolver) {
+                        for (Type interfaze : provider.getClass().getGenericInterfaces()) {
+                            if (interfaze instanceof ParameterizedType) {
+                                ParameterizedType parameterizedType = (ParameterizedType) interfaze;
+                                if (parameterizedType.getRawType().equals(ContextResolver.class)) {
+                                    if (parameterizedType.getActualTypeArguments()[0].equals(ObjectMapper.class)) {
+                                        return (ObjectMapper) ((ContextResolver) provider).getContext(Object.class);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return super._locateMapperViaProvider(type, mediaType);
+            }
+        };
     }
 
     /**

@@ -19,7 +19,7 @@ open module io.rhizomatic.web {
     requires javax.annotation.api;  // needed by Jersey
     requires com.fasterxml.jackson.jaxrs.json;
     requires jackson.jaxrs.base;
-
+    requires com.fasterxml.jackson.databind;
 
 
     provides Subsystem with WebSubsystem;
