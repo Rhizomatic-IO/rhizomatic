@@ -1,7 +1,5 @@
 package io.rhizomatic.web;
 
-import com.fasterxml.jackson.jaxrs.base.JsonMappingExceptionMapper;
-import com.fasterxml.jackson.jaxrs.base.JsonParseExceptionMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import io.rhizomatic.api.Monitor;
 import io.rhizomatic.api.annotations.EndpointPath;
@@ -112,8 +110,6 @@ public class WebSubsystem extends Subsystem {
             EndpointPath endpointPath = endpoint.getClass().getModule().getAnnotation(EndpointPath.class);
             String rootPath = endpointPath != null ? endpointPath.value() : "api";
             ResourceConfig resourceConfig = resourceConfigs.computeIfAbsent(rootPath, k -> new ResourceConfig());
-            resourceConfig.register(JsonMappingExceptionMapper.class);
-            resourceConfig.register(JsonParseExceptionMapper.class);
             resourceConfig.register(JacksonJsonProvider.class);
             resourceConfig.register(endpoint);
         }
