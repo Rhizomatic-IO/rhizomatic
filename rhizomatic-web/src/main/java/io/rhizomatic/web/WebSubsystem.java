@@ -21,17 +21,20 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.Source;
 import org.eclipse.jetty.util.resource.ResourceCollection;
+import org.glassfish.jersey.message.internal.MessagingBinders;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.servlet.internal.Utils;
 
 import javax.ws.rs.Path;
+import javax.ws.rs.RuntimeType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -61,6 +64,7 @@ public class WebSubsystem extends Subsystem {
     public void instantiate(SubsystemContext context) {
         monitor = context.getMonitor();
         RzInjectionManagerFactory.INSTANCE = new RzInjectionManager(monitor);
+        RzInjectionManagerFactory.INSTANCE.register(new MessagingBinders.MessageBodyProviders(Collections.emptyMap(), RuntimeType.SERVER));
 
         jettyTransport = new JettyTransport();
         jettyTransport.initialize(context);

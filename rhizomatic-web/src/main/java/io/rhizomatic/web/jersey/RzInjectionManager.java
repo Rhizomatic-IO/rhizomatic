@@ -27,6 +27,7 @@ import java.util.Set;
  * Bridges Jersey injection and the system injection manager.
  */
 public class RzInjectionManager implements InjectionManager {
+    private static final String CUSTOM_ANNOTATION = "org.glassfish.jersey.internal.inject.Custom";
     // List of contracts to instances registered by Jersey. Jersey registers instances it creates via Service locators as well as instances resolved from the Guice
     // injection manager.
     private Map<Object, List<InstanceHolder>> holders = new HashMap<>();
@@ -45,6 +46,7 @@ public class RzInjectionManager implements InjectionManager {
     }
 
     public void register(Binding binding) {
+        @SuppressWarnings("unchecked")
         Set<Annotation> qualifiers = binding.getQualifiers();
         if (binding instanceof InstanceBinding) {
             InstanceBinding<?> instanceBinding = (InstanceBinding) binding;
@@ -110,6 +112,10 @@ public class RzInjectionManager implements InjectionManager {
 
     @SuppressWarnings("unchecked")
     public <T> List<ServiceHolder<T>> getAllServiceHolders(Class<T> contract, Annotation... qualifiers) {
+        if (qualifiers != null && qualifiers.length == 1 && CUSTOM_ANNOTATION.equals(qualifiers[0].annotationType().getName())) {
+            // ignore the custom annotation
+            qualifiers = null;
+        }
         List<InstanceHolder> list = holders.get(contract);
         if (list == null || list.isEmpty()) {
             return Collections.emptyList();
