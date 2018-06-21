@@ -4,6 +4,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
+import io.rhizomatic.api.RhizomaticException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,7 +30,7 @@ public class LifecycleListener implements TypeListener {
             try {
                 method.invoke(instance);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                typeEncounter.addError("Error invoking callback method: " + method, e);
+                throw new RhizomaticException(e);
             }
 
         });
