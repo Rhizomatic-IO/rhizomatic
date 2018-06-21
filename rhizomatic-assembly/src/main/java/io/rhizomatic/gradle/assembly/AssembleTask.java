@@ -29,6 +29,7 @@ import static java.util.stream.Collectors.toMap;
  */
 public class AssembleTask extends DefaultTask {
     public static final String RHIZOMATIC_RELOAD = "rhizomatic-reload";
+    public static final String RHIZOMATIC_BOOTSTRAP_APP = "rhizomatic-bootstrap-app";
     public static final String RHIZOMATIC_GROUP = "io.rhizomatic";
     private String appGroup = "";  // the group name for application modules
     private boolean appCopy = true; // true if application modules should be copied
@@ -200,6 +201,18 @@ public class AssembleTask extends DefaultTask {
                         File reloadDir = new File(imageDir, "reload");
                         copy(dependency, reloadDir);
                     }
+                } else if (RHIZOMATIC_BOOTSTRAP_APP.equals(dependency.getModuleName())) {
+                    // use RZ boot app
+                    String name = getBootstrapName();
+                    for (ResolvedArtifact artifact : dependency.getModuleArtifacts()) {
+                        if (name == null) {
+                            name = artifact.getFile().getName();
+                        } else {
+                            name = name + ".jar";
+                        }
+                        copyFile(artifact.getFile(), new File(imageDir, name));
+                    }
+
                 } else {
                     copy(dependency, systemDir);
                 }

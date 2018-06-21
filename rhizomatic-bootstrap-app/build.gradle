@@ -1,0 +1,6 @@
+javaModule.name = 'io.rhizomatic.boostrap.app'
+
+
+dependencies {
+    compile project(':rhizomatic-api')
+}

@@ -5,3 +5,4 @@ include 'rhizomatic-api', 'rhizomatic-kernel', 'rhizomatic-inject', 'rhizomatic-
 include 'rhizomatic-reload'
 
 include 'rhizomatic-assembly'
+include 'rhizomatic-bootstrap-app'
