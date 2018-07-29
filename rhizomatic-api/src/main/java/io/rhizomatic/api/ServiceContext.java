@@ -12,4 +12,6 @@ public interface ServiceContext {
     String getEnvironment();
 
     void addBootCallback(Runnable runnable);
+
+    void addShutdownCallback(Runnable runnable);
 }

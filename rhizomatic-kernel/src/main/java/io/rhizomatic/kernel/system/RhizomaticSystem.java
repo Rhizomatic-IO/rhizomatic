@@ -40,6 +40,8 @@ public class RhizomaticSystem implements SubsystemContext {
 
     private List<Subsystem> subsystems;
 
+    private RzServiceContext serviceContext;
+
     private Map<Class<?>, List<Object>> systemServices = new HashMap<>();
 
     private List<LoadedLayer> loadedLayers = Collections.emptyList();
@@ -86,7 +88,7 @@ public class RhizomaticSystem implements SubsystemContext {
         instanceManager.register(Monitor.class, monitor);
 
         //TODO populate context from configuration
-        RzServiceContext serviceContext = new RzServiceContext(configuration.get(RUNTIME), configuration.get(DOMAIN), configuration.get(ENVIRONMENT));
+        serviceContext = new RzServiceContext(configuration.get(RUNTIME), configuration.get(DOMAIN), configuration.get(ENVIRONMENT));
         instanceManager.register(ServiceContext.class, serviceContext);
 
         instanceManager.wire(scanIndex);
@@ -122,6 +124,7 @@ public class RhizomaticSystem implements SubsystemContext {
     public void start() {
         subsystems.forEach(subsystem -> subsystem.applicationInitialize(this));
         subsystems.forEach(subsystem -> subsystem.start(this));
+        serviceContext.bootComplete();
     }
 
     public void shutdown() {
@@ -129,6 +132,7 @@ public class RhizomaticSystem implements SubsystemContext {
         while (iterator.hasPrevious()) {
             iterator.previous().shutdown();
         }
+        serviceContext.shutdownComplete();
     }
 
     public Monitor getMonitor() {
@@ -192,7 +196,7 @@ public class RhizomaticSystem implements SubsystemContext {
 
         Iterable<Subsystem> extensions = ServiceLoader.load(Subsystem.class);
         for (Subsystem extension : extensions) {
-            if (subsystems.contains(extension)){
+            if (subsystems.contains(extension)) {
                 continue; // subsystem is manually installed, e.g. from a test fixture; skip the service loader instance
             }
             subsystems.add(extension);
