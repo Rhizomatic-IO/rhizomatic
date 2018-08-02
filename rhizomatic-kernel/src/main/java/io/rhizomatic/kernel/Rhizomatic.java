@@ -45,7 +45,7 @@ public class Rhizomatic {
     private Set<Class<?>> services = Collections.emptySet();
     private Set<Object> instances = Collections.emptySet();
 
-    private Map<String, String> configuration = new HashMap<>();
+    private Map<String, Object> configuration = new HashMap<>();
 
     /**
      * Launches a system.
@@ -60,8 +60,8 @@ public class Rhizomatic {
         } catch (Exception e) {
             throw new RhizomaticException("Error loading system definition", e);
         }
-        Map<String, String> base = definition.isPresent() ? definition.get().getConfiguration() : new HashMap<>();
-        Map<String, String> configuration = loadConfiguration(base);
+        Map<String, Object> base = definition.isPresent() ? definition.get().getConfiguration() : new HashMap<>();
+        Map<String, Object> configuration = loadConfiguration(base);
 
         Monitor monitor = initializeMonitor(configuration);
 
@@ -159,8 +159,8 @@ public class Rhizomatic {
         state = RhizomaticState.SHUTDOWN;
     }
 
-    private static Map<String, String> loadConfiguration(Map<String, String> base) {
-        Map<String, String> configuration = new HashMap<>(base);
+    private static Map<String, Object> loadConfiguration(Map<String, Object> base) {
+        Map<String, Object> configuration = new HashMap<>(base);
         configuration.putIfAbsent(DOMAIN, "domain");
         configuration.putIfAbsent(RUNTIME, "runtime");
         configuration.putIfAbsent(ENVIRONMENT, "production");
@@ -174,7 +174,7 @@ public class Rhizomatic {
             return new Builder();
         }
 
-        public Builder configuration(Map<String, String> configuration) {
+        public Builder configuration(Map<String, Object> configuration) {
             rhizomatic.configuration = loadConfiguration(configuration);
             return this;
         }

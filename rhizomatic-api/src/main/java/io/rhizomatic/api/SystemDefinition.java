@@ -29,7 +29,7 @@ public interface SystemDefinition {
     /**
      * Returns the system configuration.
      */
-    default Map<String, String> getConfiguration() {
+    default Map<String, Object> getConfiguration() {
         return Collections.emptyMap();
     }
 }

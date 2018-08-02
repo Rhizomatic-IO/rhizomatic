@@ -48,13 +48,13 @@ public class RhizomaticSystem implements SubsystemContext {
 
     private List<WebApp> webApps = Collections.emptyList();
 
-    private Map<String, String> configuration;
+    private Map<String, Object> configuration;
 
     private Monitor monitor;
 
     private boolean subsystemsStarted;
 
-    public RhizomaticSystem(Monitor monitor, Map<String, String> configuration) {
+    public RhizomaticSystem(Monitor monitor, Map<String, Object> configuration) {
         this.monitor = monitor;
         systemServices.put(Monitor.class, List.of(monitor));
         this.configuration = configuration;
@@ -88,7 +88,7 @@ public class RhizomaticSystem implements SubsystemContext {
         instanceManager.register(Monitor.class, monitor);
 
         //TODO populate context from configuration
-        serviceContext = new RzServiceContext(configuration.get(RUNTIME), configuration.get(DOMAIN), configuration.get(ENVIRONMENT));
+        serviceContext = new RzServiceContext((String) configuration.get(RUNTIME), (String) configuration.get(DOMAIN), (String) configuration.get(ENVIRONMENT));
         instanceManager.register(ServiceContext.class, serviceContext);
 
         instanceManager.wire(scanIndex);
@@ -111,7 +111,7 @@ public class RhizomaticSystem implements SubsystemContext {
         });
 
         //TODO populate context from configuration
-        RzServiceContext serviceContext = new RzServiceContext(configuration.get(RUNTIME), configuration.get(DOMAIN), configuration.get(ENVIRONMENT));
+        RzServiceContext serviceContext = new RzServiceContext((String) configuration.get(RUNTIME), (String) configuration.get(DOMAIN), (String) configuration.get(ENVIRONMENT));
         instanceManager.register(ServiceContext.class, serviceContext);
 
         instanceManager.wire(scanIndex);

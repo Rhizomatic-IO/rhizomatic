@@ -18,12 +18,12 @@ import static java.util.stream.Collectors.toList;
  */
 public class MonitorSetup {
 
-    public static Monitor initializeMonitor(Map<String, String> configuration) {
+    public static Monitor initializeMonitor(Map<String, Object> configuration) {
         Monitor monitor;
 
         List<Monitor> monitorExtensions = ServiceLoader.load(Monitor.class).stream().map(ServiceLoader.Provider::get).collect(toList());
 
-        if (!Boolean.valueOf(configuration.get(CONSOLE_DISABLE))) {
+        if (!Boolean.valueOf((String)configuration.get(CONSOLE_DISABLE))) {
             Monitor consoleMonitor = new ConsoleMonitor(ConsoleMonitor.Level.INFO);
             monitorExtensions.add(0, consoleMonitor);
         }
@@ -34,7 +34,7 @@ public class MonitorSetup {
         } else if (monitorExtensions.size() == 1) {
             monitor = monitorExtensions.get(0);
         } else {
-            monitor = new MultiplexingMonitor(monitorExtensions.toArray(new Monitor[monitorExtensions.size()]));
+            monitor = new MultiplexingMonitor(monitorExtensions.toArray(new Monitor[0]));
         }
         redirectJdkLogging(monitor);
 
