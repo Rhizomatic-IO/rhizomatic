@@ -13,7 +13,7 @@ public class WebApp {
     /**
      * Ctor.
      *
-     * @param contextPath the conext part of the web app URL relative to the base url
+     * @param contextPath the context part of the web app URL relative to the base url
      * @param contentRoots the content roots to serve
      */
     public WebApp(String contextPath, Path... contentRoots) {

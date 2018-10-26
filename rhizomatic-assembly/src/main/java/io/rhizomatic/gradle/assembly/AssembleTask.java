@@ -14,13 +14,13 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.compile.JavaCompile;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.rhizomatic.gradle.assembly.IOHelper.cleanDirectory;
 import static io.rhizomatic.gradle.assembly.IOHelper.copyDirectory;
 import static io.rhizomatic.gradle.assembly.IOHelper.copyFile;
+import static java.util.Arrays.stream;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
@@ -34,7 +34,10 @@ public class AssembleTask extends DefaultTask {
     private String appGroup = "";  // the group name for application modules
     private boolean appCopy = true; // true if application modules should be copied
     private String bootstrapModule; // the bootstrap module name (the bootstrap module is determined using the appGroup and bootstrapModule values.
-    private String bootstrapName;  // the file name to copy the boostrap module to (exclusive of its extension)
+    private String bootstrapName;  // the file name to copy the bootstrap module to (exclusive of its extension)
+    // the files to copy the webapp dir. They may be in the form key:value, in which case the key will be the module name and the  value will be the webapp context name; otherwise
+    // the context name will be derived from the module name
+    private String[] _webapps = new String[0];
     private boolean includeSourceDir = true;  // true if the src directories of the project containg the plugin configuration should be included
     private boolean useArchives = false;  // true if the app module archives are used instead of exploded format
     private boolean reload = false;
@@ -112,6 +115,14 @@ public class AssembleTask extends DefaultTask {
         this._patchModules = (String[]) patchModules;
     }
 
+    public String[] getWebapps() {
+        return _webapps;
+    }
+
+    public void setWebapps(String[] webapps) {
+        this._webapps = webapps;
+    }
+
     @TaskAction
     public void assemble() {
         Logger logger = Logging.getLogger("rhizomatic-assembly");
@@ -177,6 +188,20 @@ public class AssembleTask extends DefaultTask {
         File appDir = new File(imageDir, "app");
         appDir.mkdirs();
 
+        File webappDir = new File(imageDir, "webapp");
+        Map<String, String> webappNames = new HashMap<>();
+        for (String webapp : _webapps) {
+            if (webapp.contains(":")) {
+                String[] tokens = webapp.split(":");  // context name is specified after the ':'
+                webappNames.put(tokens[0], tokens[1]);
+            } else {
+                webappNames.put(webapp, webapp); // context and module name are the same
+            }
+        }
+        if (!webappNames.isEmpty()) {
+            webappDir.mkdirs();
+        }
+
         File patchLibrariesDir = new File(imageDir, "plibraries");
         patchLibrariesDir.mkdirs();
 
@@ -233,6 +258,12 @@ public class AssembleTask extends DefaultTask {
                         }
                         copyFile(artifact.getFile(), target);
                     }
+                } else if (webappNames.containsKey(dependency.getModuleName())) {
+                    // Copy web app dist directory - only support exploded format
+                    ProjectDependency projectDependency = projectDependencies.get(getKey(dependency));
+                    File sourceDistDir = new File(projectDependency.getDependencyProject().getProjectDir(), "dist");
+                    File destDir = new File(webappDir, webappNames.get(dependency.getModuleName()));
+                    copyDirectory(sourceDistDir, destDir);
                 } else {
                     // app module
                     if (useArchives) {
@@ -258,7 +289,7 @@ public class AssembleTask extends DefaultTask {
                     }
                 }
             } else {
-                if (Arrays.stream(_patchModules).anyMatch(name -> dependency.getModuleName().equals(name))) {
+                if (stream(_patchModules).anyMatch(name -> dependency.getModuleName().equals(name))) {
                     // patch library module
                     copy(dependency, patchLibrariesDir);
                 } else {
