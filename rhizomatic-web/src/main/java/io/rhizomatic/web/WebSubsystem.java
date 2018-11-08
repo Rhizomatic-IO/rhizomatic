@@ -12,6 +12,7 @@ import io.rhizomatic.kernel.spi.scan.Introspector;
 import io.rhizomatic.kernel.spi.subsystem.Subsystem;
 import io.rhizomatic.kernel.spi.subsystem.SubsystemContext;
 import io.rhizomatic.web.http.JettyTransport;
+import io.rhizomatic.web.http.RewriteHandler;
 import io.rhizomatic.web.jersey.RzInjectionManager;
 import io.rhizomatic.web.jersey.RzInjectionManagerFactory;
 import io.rhizomatic.web.scan.WebIntrospector;
@@ -165,10 +166,16 @@ public class WebSubsystem extends Subsystem {
             ResourceCollection resources = new ResourceCollection(rootStrings);
 
             String contextPath = webApp.getContextPath();
+            RewriteHandler rewriteHandler = new RewriteHandler();
+
             ResourceHandler resourceHandler = new ResourceHandler();
             resourceHandler.setBaseResource(resources);
+
+            rewriteHandler.setHandler(resourceHandler);
+
             ContextHandler ctx = new ContextHandler(contextPath); /* the server uri path */
-            ctx.setHandler(resourceHandler);
+            ctx.setHandler(rewriteHandler);
+
             jettyTransport.registerHandler(ctx);
 
             monitor.info(() -> "Web app at: " + (contextPath.startsWith("/") ? contextPath : "/" + contextPath));

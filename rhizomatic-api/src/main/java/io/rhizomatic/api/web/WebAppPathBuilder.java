@@ -18,7 +18,7 @@ import static io.rhizomatic.api.internal.PathUtils.walkParents;
  * Builds a web application definition based on a root path. The included webapp locations can be customized based on inclusions, exclusions and Java class file directory partial
  * paths.
  *
- * This builder can be used to a create webapp definition from the file system image of a soource code repository.
+ * This builder can be used to a create webapp definition from the file system image of a source code repository.
  */
 public class WebAppPathBuilder {
     private String contextPath;

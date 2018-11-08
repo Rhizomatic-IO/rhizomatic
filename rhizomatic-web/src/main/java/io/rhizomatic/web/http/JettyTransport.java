@@ -44,7 +44,6 @@ public class JettyTransport {
         monitor = context.getMonitor();
         RzJettyLogger.MONITOR = monitor;
 
-
         server.setErrorHandler(new RzErrorHandler());
         try {
             ContextHandlerCollection contexts = new ContextHandlerCollection();
