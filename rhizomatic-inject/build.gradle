@@ -1,5 +1,3 @@
-javaModule.name = 'io.rhizomatic.inject'
-
 def guiceVersion = '4.2.0'
 
 dependencies {

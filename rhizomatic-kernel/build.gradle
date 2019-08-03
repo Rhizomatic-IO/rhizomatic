@@ -1,13 +1,3 @@
-javaModule.name = 'io.rhizomatic.kernel'
-
 dependencies {
     compile project(':rhizomatic-api')
 }
-
-//task addMainClass()  {
-//    exec {
-//        executable "jar"
-//        args "--update", "--file=${buildDir}/libs/rhizomatic-kernel.jar", "--main-class=io.massiv.rhizomatic.kernel.Rhizomatic"
-//    }
-//}
-//ModuleMainClass
