@@ -13,9 +13,10 @@ buildscript {
     }
 
 }
+
 plugins {
     id 'com.gradle.plugin-publish' version '0.9.9'
-    id "io.spring.bintray" version "0.11.1"
+    id "com.jfrog.bintray" version "1.8.4"
 }
 
 project.description 'Rhizomatic'
@@ -34,7 +35,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: "org.javamodularity.moduleplugin"
     apply plugin: 'maven-publish'
-    apply plugin: 'io.spring.bintray'
+    apply plugin: 'com.jfrog.bintray'
 
     tasks.withType(Javadoc).all { enabled = false } // disable javadoc due to Gradle Java9 issue
 
@@ -94,31 +95,31 @@ subprojects {
         }
     }
 
-    // secrets stored in ~/.gradle/gradle.properties
+    // secrets stored in ~/.gradle/gradle.properties NB key is the Bintray API key, not password
     def bUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : 'undefined'
     def bKey = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : 'undefined'
 
     bintray {
-
-        bintrayUser = bUser
-        bintrayKey = bKey
-
-        repo = 'Rhizomatic'
-        publication = 'mavenJava'
-
-        org = 'rhizomatic'
-        labels = ['JPMS', 'Java9', 'Jigsaw', 'microservices']
-        licenses = ['MIT']
-        overrideOnUpload = false // should the upload task override existing artifacts?
-
-        websiteUrl = 'https://github.com/Rhizomatic-IO/rhizomatic'
-        issueTrackerUrl = 'https://github.com/Rhizomatic-IO/rhizomatic/issues'
-        vcsUrl = 'https://github.com/Rhizomatic-IO/rhizomatic.git'
-
-        // ossrhUser = // if syncing to Maven Central
-        // ossrhPassword = //...
-        // gpgPassphrase
+        user = bUser
+        key = bKey
+        publications = ['mavenJava']
+        pkg {
+            repo = 'Rhizomatic'
+            name = project.name
+            userOrg = 'rhizomatic'
+            licenses = ['MIT']
+            websiteUrl = 'https://github.com/Rhizomatic-IO/rhizomatic'
+            issueTrackerUrl = 'https://github.com/Rhizomatic-IO/rhizomatic/issues'
+            vcsUrl = 'https://github.com/Rhizomatic-IO/rhizomatic.git'
+            version {
+                name = project.version
+                desc = 'Rhizomatic'
+                released = new Date()
+                vcsTag = project.version
+            }
+        }
     }
+
 
 
 }
