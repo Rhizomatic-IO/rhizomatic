@@ -205,9 +205,10 @@ public class AssembleTask extends DefaultTask {
         File patchLibrariesDir = new File(imageDir, "plibraries");
         patchLibrariesDir.mkdirs();
 
-        Configuration configuration = project.getConfigurations().getByName("compile");
+        Configuration configuration = project.getConfigurations().getByName("compileClasspath");
         Map<String, ProjectDependency> projectDependencies = new HashMap<>();
-        configuration.getDependencies().forEach(dependency -> {
+
+        configuration.getAllDependencies().forEach(dependency -> {
             if (dependency instanceof ProjectDependency) {
                 if (RHIZOMATIC_RELOAD.equals(dependency.getName()) && RHIZOMATIC_GROUP.equals(dependency.getGroup())) {
                     // do not include transitive dependencies of reload since JRebel is added on the boot module path
