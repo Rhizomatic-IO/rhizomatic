@@ -141,7 +141,7 @@ public class AssembleTask extends DefaultTask {
      * dependencies if there are transitive duplicates.
      */
     private Map<String, ResolvedDependency> resolveDependencies(Project project) {
-        Configuration configuration = project.getConfigurations().getByName("compile");
+        Configuration configuration = project.getConfigurations().getByName("compileClasspath");
 
         ResolvedConfiguration resolvedConfiguration = configuration.getResolvedConfiguration();
         Map<String, ResolvedDependency> directDependencies = new HashMap<>();
