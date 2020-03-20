@@ -22,9 +22,21 @@ public class MultiplexingMonitor implements Monitor {
         }
     }
 
+    public void severe(String message, Throwable... errors) {
+        for (Monitor monitor : monitors) {
+            monitor.severe(message, errors);
+        }
+    }
+
     public void info(Supplier<String> supplier, Throwable... errors) {
         for (Monitor monitor : monitors) {
             monitor.info(supplier, errors);
+        }
+    }
+
+    public void info(String message, Throwable... errors) {
+        for (Monitor monitor : monitors) {
+            monitor.info(message, errors);
         }
     }
 

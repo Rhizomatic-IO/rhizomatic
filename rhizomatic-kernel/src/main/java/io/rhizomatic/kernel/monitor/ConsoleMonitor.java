@@ -35,29 +35,42 @@ public class ConsoleMonitor implements Monitor {
     }
 
     public void severe(Supplier<String> supplier, Throwable... errors) {
-        output("SEVERE", supplier, ANSI_RED, errors);
+        output("SEVERE", supplier.get(), ANSI_RED, errors);
+    }
+
+    @Override
+    public void severe(String message, Throwable... errors) {
+        output("SEVERE", message, ANSI_RED, errors);
     }
 
     public void info(Supplier<String> supplier, Throwable... errors) {
         if (Level.INFO.value < level.value) {
             return;
         }
-        output("INFO", supplier, ANSI_BLUE, errors);
+        output("INFO", supplier.get(), ANSI_BLUE, errors);
+    }
+
+    @Override
+    public void info(String message, Throwable... errors) {
+        if (Level.INFO.value < level.value) {
+            return;
+        }
+        output("INFO", message, ANSI_BLUE, errors);
     }
 
     public void debug(Supplier<String> supplier, Throwable... errors) {
         if (Level.DEBUG.value < level.value) {
             return;
         }
-        output("DEBUG", supplier, ANSI_BLACK, errors);
+        output("DEBUG", supplier.get(), ANSI_BLACK, errors);
     }
 
-    private void output(String level, Supplier<String> supplier, String color, Throwable... errors) {
+    private void output(String level, String message, String color, Throwable... errors) {
         color = ansi ? color : "";
         String reset = ansi ? ANSI_RESET : "";
 
         String time = ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        System.out.println(color + level + " " + time + " " + supplier.get() + reset);
+        System.out.println(color + level + " " + time + " " + message + reset);
         if (errors != null) {
             for (Throwable error : errors) {
                 if (error != null) {

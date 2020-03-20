@@ -14,4 +14,9 @@ public interface ConfigurationKeys {
 
     String ENVIRONMENT = "environment";
 
+    String MONITOR_JSON = "MONITOR_JSON";
+
+    String MONITOR_JSON_LOWER = "monitor.json";
+
+
 }

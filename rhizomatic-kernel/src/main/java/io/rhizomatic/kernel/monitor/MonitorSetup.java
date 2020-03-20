@@ -11,6 +11,8 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.CONSOLE_DISABLE;
+import static io.rhizomatic.kernel.spi.ConfigurationKeys.MONITOR_JSON;
+import static io.rhizomatic.kernel.spi.ConfigurationKeys.MONITOR_JSON_LOWER;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -23,7 +25,10 @@ public class MonitorSetup {
 
         List<Monitor> monitorExtensions = ServiceLoader.load(Monitor.class).stream().map(ServiceLoader.Provider::get).collect(toList());
 
-        if (!Boolean.valueOf((String)configuration.get(CONSOLE_DISABLE))) {
+        if (getBooleanProperty(MONITOR_JSON)) {
+            Monitor jsonMonitor = new JsonConsoleMonitor(JsonConsoleMonitor.Level.INFO);
+            monitorExtensions.add(0, jsonMonitor);
+        } else if (!Boolean.parseBoolean((String) configuration.get(CONSOLE_DISABLE))) {
             Monitor consoleMonitor = new ConsoleMonitor(ConsoleMonitor.Level.INFO);
             monitorExtensions.add(0, consoleMonitor);
         }
@@ -71,6 +76,18 @@ public class MonitorSetup {
 
             }
         });
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static boolean getBooleanProperty(String key) {
+        String value = System.getenv(key);
+        if (value == null) {
+            value = System.getProperty(key);
+            if (value == null) {
+                value = System.getProperty(MONITOR_JSON_LOWER);
+            }
+        }
+        return Boolean.parseBoolean(value);
     }
 
 }
