@@ -70,7 +70,7 @@ open module module.a {
 }
 
 ```
-If multiple modules use the same endpoint path, their resource services will be concantenated under the same path. 
+If multiple modules use the same endpoint path, their resource services will be concatenated under the same path. 
 
 ## Remote Communications and Streaming
 Applications may often use messaging systems such as [NATS](nats.io) and [Kafka](https://kafka.apache.org) or streaming libraries for communications. Instead of providing
@@ -131,7 +131,7 @@ transitive third-party dependencies:
 ```groovy
 apply plugin: 'io.rhizomatic.assembly'
 
-def rzVersion = '0.1'
+def rzVersion = '0.3.5'
 
 rhizomaticAssembly {
     bootstrapModule = "bootstrap"
@@ -140,12 +140,12 @@ rhizomaticAssembly {
 }
 
 dependencies {
-    compile group: 'io.rhizomatic', name: 'rhizomatic-kernel', version: rzVersion
-    compile group: 'io.rhizomatic', name: 'rhizomatic-inject', version: rzVersion
-    compile group: 'io.rhizomatic', name: 'rhizomatic-web', version: rzVersion
+    implementation group: 'io.rhizomatic', name: 'rhizomatic-kernel', version: rzVersion
+    implementation group: 'io.rhizomatic', name: 'rhizomatic-inject', version: rzVersion
+    implementation group: 'io.rhizomatic', name: 'rhizomatic-web', version: rzVersion
 
-    compile project(":app-module")
-    compile project(":bootstrap")
+    implementation project(":app-module")
+    implementation project(":bootstrap")
 }
 
 ```
@@ -164,9 +164,9 @@ Rhizomatic can be embedded in a test fixture. In a Gradle build file, set the te
 are not needed, do not include the Rhizomatic web extension):
 
 ```groovy
-testCompile group: 'io.rhizomatic', name: 'rhizomatic-kernel', version: rzVersion
-testCompile group: 'io.rhizomatic', name: 'rhizomatic-inject', version: rzVersion
-testCompile group: 'io.rhizomatic', name: 'rhizomatic-web', version: rzVersion
+testImplementation group: 'io.rhizomatic', name: 'rhizomatic-kernel', version: rzVersion
+testImplementation group: 'io.rhizomatic', name: 'rhizomatic-inject', version: rzVersion
+testImplementation group: 'io.rhizomatic', name: 'rhizomatic-web', version: rzVersion
 
 ``` 
 
@@ -194,7 +194,7 @@ public class SomeTest{
 
 ## Monitoring and Logging
   
-Rhizomatic does not provide a logging implementation. Instead it uses a monitoring interface, ```io.rhizomatic.api.Monitor```, that can be implemented by a module:
+Rhizomatic does not provide a logging implementation. Instead, it uses a monitoring interface, ```io.rhizomatic.api.Monitor```, that can be implemented by a module:
 
 ```java
 module bootstrap.dev {
@@ -207,39 +207,11 @@ module bootstrap.dev {
 
 ``` 
 To enable the monitor implementation, the module must be laoded as a library (not an application module) since monitor messages are emitted during application boot.
+  
+# Building from Source
 
-## Dynamic Code Changes
+To build from source and publish locally, run:
 
-Rhizomatic integrates directly with [JRebel](https://zeroturnaround.com/software/jrebel/) and an IDE's incremental compilation to provide instantaneous application updates
-without the need to perform a module reload. As code is changed or added in the IDE, services and endpoints will be transparently updated in-place. 
-
-Use the Rhizomatic Assembly plugin to create a reloadable runtime image as part of a Gradle build:
-
-```groovy
-apply plugin: 'io.rhizomatic.assembly'
-
-def rzVersion = '0.1'
-
-rhizomaticAssembly {
-    bootstrapModule = "bootstrap-message-dev"
-    bootstrapName = "bootstrap"
-    appGroup = "io.rhizomatic.samples"
-    appCopy = false;
-    reload = true;
-}
-
-dependencies {
-    compile group: 'io.rhizomatic', name: 'rhizomatic-kernel', version: rzVersion
-    compile group: 'io.rhizomatic', name: 'rhizomatic-inject', version: rzVersion
-    compile group: 'io.rhizomatic', name: 'rhizomatic-web', version: rzVersion
-
-    compile project(":webapp")
-    compile project(":message-service")
-    compile project(":bootstrap-message-dev")
-}
-
-``` 
-
-Install JRebel, enable incremental compile in your IDE, and launch the image:
-
-```java  -agentpath:<path to JRebel agent>  -p libraries:reload:system:<path to system definition> -m io.rhizomatic.kernel/io.rhizomatic.kernel.Rhizomatic``` 
+```console
+./gradlew clean test publishToMavenLocal
+```

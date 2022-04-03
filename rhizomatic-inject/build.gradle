@@ -1,4 +1,4 @@
-def guiceVersion = '4.2.0'
+def guiceVersion = '5.1.0'
 
 dependencies {
     implementation project(':rhizomatic-api')
@@ -6,16 +6,9 @@ dependencies {
 
     implementation group: 'javax.inject', name: 'javax.inject', version: '1'
 
-    implementation("com.google.inject:guice:${guiceVersion}:no_aop") {
-        exclude module: 'aopalliance'
+    implementation("com.google.inject:guice:${guiceVersion}") {
         exclude group: 'com.google.code.findbugs'
     }
-
-    implementation("com.google.inject.extensions:guice-multibindings:${guiceVersion}") {
-        exclude group: 'com.google.inject', module: 'guice'
-        exclude group: 'com.google.code.findbugs'
-    }
-
 
 }
 

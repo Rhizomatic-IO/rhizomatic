@@ -33,7 +33,7 @@ public class AssembleTask extends DefaultTask {
     // the files to copy the webapp dir. They may be in the form key:value, in which case the key will be the module name and the  value will be the webapp context name; otherwise
     // the context name will be derived from the module name
     private String[] _webapps = new String[0];
-    private boolean includeSourceDir = true;  // true if the src directories of the project containg the plugin configuration should be included
+    private boolean includeSourceDir = true;  // true if the src directories of the project containing the plugin configuration should be included
     private boolean useArchives = false;  // true if the app module archives are used instead of exploded format
     private boolean reload = false;
     private String[] _patchModules = new String[0];
@@ -136,7 +136,7 @@ public class AssembleTask extends DefaultTask {
      * dependencies if there are transitive duplicates.
      */
     private Map<String, ResolvedDependency> resolveDependencies(Project project) {
-        var configuration = project.getConfigurations().getByName("compileClasspath");
+        var configuration = project.getConfigurations().getByName("runtimeClasspath");
 
         var resolvedConfiguration = configuration.getResolvedConfiguration();
         var directDependencies = new HashMap<String, ResolvedDependency>();

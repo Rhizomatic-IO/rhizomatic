@@ -1,7 +1,6 @@
-//noinspection GroovyAssignabilityCheck
+//file:noinspection GroovyAssignabilityCheck
 buildscript {
 
-    //noinspection GroovyAssignabilityCheck
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -17,7 +16,6 @@ buildscript {
 
 }
 
-//noinspection GroovyAssignabilityCheck
 plugins {
     id 'com.gradle.plugin-publish' version '0.21.0'
 }
@@ -30,7 +28,6 @@ subprojects {
     group 'io.rhizomatic'
     version '0.3.5'
 
-    //noinspection GroovyAssignabilityCheck
     repositories {
         mavenCentral()
         mavenLocal()
@@ -60,7 +57,6 @@ subprojects {
         from sourceSets.main.allJava
     }
 
-    //noinspection GroovyAssignabilityCheck
     def pomConfig = {
         licenses {
             license {

@@ -4,31 +4,30 @@ dependencies {
     implementation project(':rhizomatic-api')
     implementation project(':rhizomatic-kernel')
 
-    implementation group: 'javax.inject', name: 'javax.inject', version: '1'
+    api group: 'javax.inject', name: 'javax.inject', version: '1'
 
-    implementation group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1'
+    api group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1'
 
-    implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.0'
+    api group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.0'
 
-    implementation('org.eclipse.jetty:jetty-webapp:9.4.12.v20180830') {
+    api('org.eclipse.jetty:jetty-webapp:9.4.12.v20180830') {
         exclude module: 'jetty-xml'
     }
 
-    implementation('org.glassfish.jersey.core:jersey-server:${jerseyVersion}') {
+    api('org.glassfish.jersey.core:jersey-server:${jerseyVersion}') {
         exclude group: 'org.glassfish.hk2'
         exclude module: 'jersey-media-jaxb'
         exclude module: 'jersey-hk2'
         exclude group: 'org.glassfish.hk2.external'
     }
 
-    implementation("org.glassfish.jersey.containers:jersey-container-servlet:${jerseyVersion}") {
+    api("org.glassfish.jersey.containers:jersey-container-servlet:${jerseyVersion}") {
         exclude group: 'org.glassfish.hk2.external'
     }
 
-    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.13.2'
-    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.13.2'
+    api 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.13.2'
+    api 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.13.2'
 
-    //compile group: 'javax.activation', name: 'activation', version: '1.1.1'
 
 }
 
