@@ -12,7 +12,7 @@ public class ArgsParserTest {
 
     @Test
     public void parseParams() {
-        ArgsParser.Params params = ArgsParser.parseParams("-c", "c1");
+        var params = ArgsParser.parseParams("-c", "c1");
         Assertions.assertEquals("c1", params.configPath);
 
         params = ArgsParser.parseParams("-l", "l1");

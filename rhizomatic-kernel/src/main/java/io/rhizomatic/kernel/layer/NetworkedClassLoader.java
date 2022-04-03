@@ -32,7 +32,7 @@ public class NetworkedClassLoader extends SecureClassLoader {
 
     public URL findResource(String name) {
         // look in parents
-        for (ClassLoader parent : parents) {
+        for (var parent : parents) {
             URL resource = parent.getResource(name);
             if (resource != null) {
                 return resource;
@@ -43,14 +43,14 @@ public class NetworkedClassLoader extends SecureClassLoader {
 
     public Enumeration<URL> findResources(String name) throws IOException {
         // LinkedHashSet because we want all resources in the order found but no duplicates
-        Set<URL> resources = new LinkedHashSet<>();
-        for (ClassLoader parent : parents) {
-            Enumeration<URL> parentResources = parent.getResources(name);
+        var resources = new LinkedHashSet<URL>();
+        for (var parent : parents) {
+            var parentResources = parent.getResources(name);
             while (parentResources.hasMoreElements()) {
                 resources.add(parentResources.nextElement());
             }
         }
-        Enumeration<URL> currentResources = super.findResources(name);
+        var currentResources = super.findResources(name);
         while (currentResources.hasMoreElements()) {
             resources.add(currentResources.nextElement());
         }
@@ -63,7 +63,7 @@ public class NetworkedClassLoader extends SecureClassLoader {
 
     protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         // look for previously loaded classes
-        Class<?> clazz = findLoadedClass(name);
+        var clazz = findLoadedClass(name);
         if (clazz == null) {
             // look in the primary parent
             try {
@@ -73,7 +73,7 @@ public class NetworkedClassLoader extends SecureClassLoader {
             }
             if (clazz == null) {
                 // look in other parents
-                for (ClassLoader parent : parents) {
+                for (var parent : parents) {
                     try {
                         clazz = parent.loadClass(name);
                         break;

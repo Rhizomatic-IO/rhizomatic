@@ -21,7 +21,7 @@ public class LifecycleListener implements TypeListener {
     }
 
     public <I> void hear(final TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter) {
-        Method method = methodMap.get(typeLiteral.getRawType());
+        var method = methodMap.get(typeLiteral.getRawType());
         if (method == null) {
             return;
         }
@@ -32,7 +32,6 @@ public class LifecycleListener implements TypeListener {
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RhizomaticException(e);
             }
-
         });
     }
 

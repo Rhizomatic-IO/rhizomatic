@@ -7,12 +7,11 @@ import io.rhizomatic.api.web.WebApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.newDirectoryStream;
 
 /**
@@ -24,15 +23,15 @@ public class AppSystemDefinition implements SystemDefinition {
 
     public AppSystemDefinition() {
         try {
-            Path imageDirectory = getImageDirectory(AppSystemDefinition.class);
-            Path appDir = imageDirectory.resolve("app");
+            var imageDirectory = getImageDirectory(AppSystemDefinition.class);
+            var appDir = imageDirectory.resolve("app");
 
-            RzLayer.Builder layerBuilder = RzLayer.Builder.newInstance("main");
-            newDirectoryStream(appDir, p -> isDirectory(p)).forEach(layerBuilder::module);
+            var layerBuilder = RzLayer.Builder.newInstance("main");
+            newDirectoryStream(appDir, Files::isDirectory).forEach(layerBuilder::module);
             layers = List.of(layerBuilder.build());
 
-            Path webappDir = imageDirectory.resolve("webapp");
-            newDirectoryStream(webappDir, p -> isDirectory(p)).forEach(location -> webApps.add(new WebApp("/" + location.getFileName(), webappDir.resolve(location.getFileName()))));
+            var webappDir = imageDirectory.resolve("webapp");
+            newDirectoryStream(webappDir, Files::isDirectory).forEach(location -> webApps.add(new WebApp("/" + location.getFileName(), webappDir.resolve(location.getFileName()))));
 
         } catch (IOException e) {
             throw new RuntimeException("Unable to bootstrap system", e);
@@ -49,7 +48,7 @@ public class AppSystemDefinition implements SystemDefinition {
 
     public static Path getImageDirectory(Class<?> clazz) throws IllegalStateException {
         // get the name of the Class's bytecode
-        String name = clazz.getName();
+        var name = clazz.getName();
         int last = name.lastIndexOf('.');
         if (last != -1) {
             name = name.substring(last + 1);
@@ -57,12 +56,12 @@ public class AppSystemDefinition implements SystemDefinition {
         name = name + ".class";
 
         // get location of the bytecode - should be a jar: URL
-        URL url = clazz.getResource(name);
+        var url = clazz.getResource(name);
         if (url == null) {
             throw new IllegalStateException("Unable to get location of bytecode resource " + name);
         }
 
-        String jarLocation = url.toString();
+        var jarLocation = url.toString();
         if (!jarLocation.startsWith("jar:")) {
             throw new IllegalStateException("Must be run from a jar: " + url);
         }
@@ -73,7 +72,7 @@ public class AppSystemDefinition implements SystemDefinition {
             throw new IllegalStateException("Must be run from a local filesystem: " + jarLocation);
         }
 
-        File jarFile = new File(URI.create(jarLocation));
+        var jarFile = new File(URI.create(jarLocation));
         return jarFile.getParentFile().toPath();
     }
 

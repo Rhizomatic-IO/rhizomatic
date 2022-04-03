@@ -67,9 +67,9 @@ public class ConsoleMonitor implements Monitor {
 
     private void output(String level, String message, String color, Throwable... errors) {
         color = ansi ? color : "";
-        String reset = ansi ? ANSI_RESET : "";
+        var reset = ansi ? ANSI_RESET : "";
 
-        String time = ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        var time = ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         System.out.println(color + level + " " + time + " " + message + reset);
         if (errors != null) {
             for (Throwable error : errors) {

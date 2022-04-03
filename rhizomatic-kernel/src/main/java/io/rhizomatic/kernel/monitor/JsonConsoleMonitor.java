@@ -17,7 +17,7 @@ public class JsonConsoleMonitor implements Monitor {
     public enum Level {
         SEVERE(2), INFO(1), DEBUG(0);
 
-        int value;
+        final int value;
 
         Level(int value) {
             this.value = value;
@@ -61,19 +61,19 @@ public class JsonConsoleMonitor implements Monitor {
     }
 
     private void output(String level, String message, Throwable... errors) {
-        String time = ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        var time = ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        StringBuilder output = new StringBuilder("{");
+        var output = new StringBuilder("{");
         writeProperty("message", message, output);
         writeProperty("@timestamp", time, output);
 
         if (errors != null && errors.length > 0 && errors[0] != null) {
             writeProperty("level", level, output);
-            StringBuilder errorBuilder = new StringBuilder();
+            var errorBuilder = new StringBuilder();
             writeProperty("exception_class", errors[0].getClass().getName(), errorBuilder);
             writeProperty("exception_message", errors[0].getMessage(), errorBuilder);
 
-            StringWriter trace = new StringWriter();
+            var trace = new StringWriter();
             errors[0].printStackTrace(new PrintWriter(trace));
             writeTerminalProperty("stacktrace", trace.toString().replaceAll("[\n\r]", "").replaceAll("[\u0009]", " "), errorBuilder);
             writeObjectProperty("exception", errorBuilder.toString(), output);
@@ -82,7 +82,7 @@ public class JsonConsoleMonitor implements Monitor {
         }
 
         output.append("}");
-        
+
         System.out.println(output.toString());
     }
 

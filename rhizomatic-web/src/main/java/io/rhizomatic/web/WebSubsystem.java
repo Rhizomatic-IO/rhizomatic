@@ -64,7 +64,7 @@ public class WebSubsystem extends Subsystem {
 
     public void instantiate(SubsystemContext context) {
         monitor = context.getMonitor();
-        RzInjectionManagerFactory.INSTANCE = new RzInjectionManager(monitor);
+        RzInjectionManagerFactory.INSTANCE = new RzInjectionManager();
         RzInjectionManagerFactory.INSTANCE.register(new MessagingBinders.MessageBodyProviders(Collections.emptyMap(), RuntimeType.SERVER));
 
         jettyTransport = new JettyTransport();

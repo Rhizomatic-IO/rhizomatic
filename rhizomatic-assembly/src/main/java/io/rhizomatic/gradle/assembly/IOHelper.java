@@ -45,12 +45,12 @@ public final class IOHelper {
             throw new GradleException(directory + " is not a directory");
         }
 
-        File[] files = directory.listFiles();
+        var files = directory.listFiles();
         if (files == null) { // null if security restricted
             throw new GradleException("Failed to list contents of " + directory);
         }
 
-        for (File file : files) {
+        for (var file : files) {
             if (file.isDirectory()) {
                 deleteDirectory(file);
             } else if (!file.delete()) {
@@ -75,12 +75,12 @@ public final class IOHelper {
             throw new GradleException("Destination '" + destDir + "' cannot be written to");
         }
         // recurse
-        File[] files = srcDir.listFiles();
+        var files = srcDir.listFiles();
         if (files == null) { // null if security restricted
             throw new GradleException("Failed to list contents of " + srcDir);
         }
-        for (File file : files) {
-            File copiedFile = new File(destDir, file.getName());
+        for (var file : files) {
+            var copiedFile = new File(destDir, file.getName());
             if (file.isDirectory()) {
                 copyDirectory(file, copiedFile);
             } else {
@@ -134,8 +134,8 @@ public final class IOHelper {
 
     public static int copy(InputStream input, OutputStream output) throws GradleException {
         try {
-            byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-            int count = 0;
+            var buffer = new byte[DEFAULT_BUFFER_SIZE];
+            var count = 0;
             int n;
             while (-1 != (n = input.read(buffer))) {
                 output.write(buffer, 0, n);

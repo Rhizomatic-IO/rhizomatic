@@ -55,7 +55,7 @@ public class RzLayer {
         }
 
         public Builder module(Path location) {
-            RzModule module = new RzModule(location);
+            var module = new RzModule(location);
             return module(module);
         }
 

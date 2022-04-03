@@ -20,7 +20,7 @@ public class Edge<T> {
         return sink;
     }
 
-    public Vertex<T> getOppositeVertex(Vertex v) {
+    public Vertex<T> getOppositeVertex(Vertex<T> v) {
         if (this.source == v) {
             return this.sink;
         } else if (this.sink == v) {

@@ -21,7 +21,6 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -45,14 +44,14 @@ public class GuiceInstanceManager implements InstanceManager {
     }
 
     public void wire(ScanIndex scanIndex) {
-        AbstractModule injectModule = new AbstractModule() {
+        var injectModule = new AbstractModule() {
             @SuppressWarnings("unchecked")
             protected void configure() {
                 if (!scanIndex.getInitCallbacks().isEmpty()) {
                     bindListener(Matchers.any(), new LifecycleListener(scanIndex.getInitCallbacks()));
                 }
 
-                for (Map.Entry<Class<?>, Object> entry : instances.entrySet()) {
+                for (var entry : instances.entrySet()) {
                     Class key = entry.getKey();
                     bind(key).toInstance(entry.getValue());
                 }
@@ -67,7 +66,7 @@ public class GuiceInstanceManager implements InstanceManager {
                 }
 
                 // bind scanned services
-                for (Map.Entry<Class<?>, List<Class<?>>> entry : scanIndex.getServiceBindings().entrySet()) {
+                for (var entry : scanIndex.getServiceBindings().entrySet()) {
                     if (entry.getValue().isEmpty()) {
                         //noinspection UnnecessaryContinue
                         continue;
@@ -79,8 +78,8 @@ public class GuiceInstanceManager implements InstanceManager {
                         Multibinder builder;
                         if (key.getTypeParameters().length > 0) {
                             // bind generic params to wildcard types
-                            Type[] paramTypes = new Type[key.getTypeParameters().length];
-                            for (int i = 0; i < key.getTypeParameters().length; i++) {
+                            var paramTypes = new Type[key.getTypeParameters().length];
+                            for (var i = 0; i < key.getTypeParameters().length; i++) {
                                 paramTypes[i] = Types.subtypeOf(Object.class);
                             }
                             builder = Multibinder.newSetBinder(binder(), TypeLiteral.get(Types.newParameterizedType(key, paramTypes)));
@@ -88,7 +87,7 @@ public class GuiceInstanceManager implements InstanceManager {
                             builder = Multibinder.newSetBinder(binder(), key);
                         }
                         // order the multi-bindings are loaded in the module determines injection order
-                        for (Class<?> implClass : entry.getValue()) {
+                        for (var implClass : entry.getValue()) {
                             builder.addBinding().to(implClass).in(Scopes.SINGLETON);
                             bind(implClass).in(Scopes.SINGLETON);    // force singleton .cf https://github.com/google/guice/issues/791
                         }
@@ -109,7 +108,6 @@ public class GuiceInstanceManager implements InstanceManager {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <T> @Nullable T resolve(Class<T> type) {
         checkWired();
         try {
@@ -122,7 +120,7 @@ public class GuiceInstanceManager implements InstanceManager {
     @SuppressWarnings("unchecked")
     public <T> Set<T> resolveAll(Class<T> type) {
         checkWired();
-        TypeLiteral<Set<T>> literal = (TypeLiteral<Set<T>>) TypeLiteral.get(Types.setOf(type));
+        var literal = (TypeLiteral<Set<T>>) TypeLiteral.get(Types.setOf(type));
         try {
             return injector.getInstance(Key.get(literal));
         } catch (ConfigurationException e) {
@@ -130,15 +128,14 @@ public class GuiceInstanceManager implements InstanceManager {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Set<?> resolveQualifiedTypes(Class<?> qualifier) {
-        Set<Class<?>> implTypes = qualifiedServices.get(qualifier);
+        var implTypes = qualifiedServices.get(qualifier);
         if (implTypes == null) {
             return Collections.emptySet();
         }
-        Set<Object> instances = new LinkedHashSet<>();
-        for (Class implType : implTypes) {
-            Object resolved = resolve(implType);
+        var instances = new LinkedHashSet<Object>();
+        for (var implType : implTypes) {
+            var resolved = resolve(implType);
             if (resolved != null) {
                 instances.add(resolved);
             }
@@ -156,7 +153,7 @@ public class GuiceInstanceManager implements InstanceManager {
         if (type.isAnnotationPresent(Multiplicity.class)) {
             return true;
         }
-        for (Class<?> interfaze : type.getInterfaces()) {
+        for (var interfaze : type.getInterfaces()) {
             if (isMultiplicity(interfaze)) {
                 return true;
             }

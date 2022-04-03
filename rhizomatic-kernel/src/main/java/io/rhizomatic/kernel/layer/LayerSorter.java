@@ -20,29 +20,29 @@ public class LayerSorter {
      * Sorts the layers topologically.
      */
     public static List<RzLayer> topologicalSort(List<RzLayer> layers) {
-        DirectedGraph<RzLayer> graph = new DirectedGraph<>();
-        Set<RzLayer> seen = new HashSet<>();
+        var graph = new DirectedGraph<RzLayer>();
+        var seen = new HashSet<RzLayer>();
 
-        for (RzLayer layer : layers) {
+        for (var layer : layers) {
             if (seen.contains(layer)) {
                 continue;
             }
             seen.add(layer);
-            Vertex<RzLayer> parentVertex = new Vertex<>(layer);
+            var parentVertex = new Vertex<RzLayer>(layer);
             graph.add(parentVertex);
             buildGraph(parentVertex, graph, seen);
         }
-        TopologicalSorter<RzLayer> sorter = new TopologicalSorter<>();
+        var sorter = new TopologicalSorter<RzLayer>();
         return sorter.sort(graph).stream().map(Vertex::getEntity).collect(toList());
     }
 
     private static void buildGraph(Vertex<RzLayer> parentVertex, DirectedGraph<RzLayer> graph, Set<RzLayer> seen) {
-        for (RzLayer child : parentVertex.getEntity().getChildren()) {
+        for (var child : parentVertex.getEntity().getChildren()) {
             if (seen.contains(child)) {
                 continue;
             }
             seen.add(child);
-            Vertex<RzLayer> childVertex = new Vertex<>(child);
+            var childVertex = new Vertex<>(child);
             graph.add(childVertex);
             graph.addEdge(parentVertex, childVertex);
             buildGraph(childVertex, graph, seen);

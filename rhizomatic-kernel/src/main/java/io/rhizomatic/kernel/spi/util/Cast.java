@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Cast {
 
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    @SuppressWarnings({"unchecked"})
     public static <T> T cast(@Nullable Object list) {
         return (T) list;
     }

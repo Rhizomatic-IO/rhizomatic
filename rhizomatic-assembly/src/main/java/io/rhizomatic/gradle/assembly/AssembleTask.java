@@ -2,12 +2,8 @@ package io.rhizomatic.gradle.assembly;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ProjectDependency;
-import org.gradle.api.artifacts.ResolvedArtifact;
-import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.artifacts.ResolvedDependency;
-import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -124,11 +120,11 @@ public class AssembleTask extends DefaultTask {
 
     @TaskAction
     public void assemble() {
-        Logger logger = Logging.getLogger("rhizomatic-assembly");
+        var logger = Logging.getLogger("rhizomatic-assembly");
 
-        Project project = getProject();
+        var project = getProject();
 
-        Map<String, ResolvedDependency> transitiveDependencies = resolveDependencies(project);
+        var transitiveDependencies = resolveDependencies(project);
 
         logger.info("Assembling Rhizomatic runtime image");
 
@@ -140,15 +136,15 @@ public class AssembleTask extends DefaultTask {
      * dependencies if there are transitive duplicates.
      */
     private Map<String, ResolvedDependency> resolveDependencies(Project project) {
-        Configuration configuration = project.getConfigurations().getByName("compileClasspath");
+        var configuration = project.getConfigurations().getByName("compileClasspath");
 
-        ResolvedConfiguration resolvedConfiguration = configuration.getResolvedConfiguration();
-        Map<String, ResolvedDependency> directDependencies = new HashMap<>();
+        var resolvedConfiguration = configuration.getResolvedConfiguration();
+        var directDependencies = new HashMap<String, ResolvedDependency>();
 
         // resolve breadth-first
         resolvedConfiguration.getFirstLevelModuleDependencies().forEach(d -> directDependencies.put(getKey(d), d));
 
-        Map<String, ResolvedDependency> transitiveDependencies = new HashMap<>(directDependencies);
+        var transitiveDependencies = new HashMap<>(directDependencies);
         directDependencies.values().forEach(d -> calculateTransitive(d, transitiveDependencies));
         return transitiveDependencies;
     }
@@ -158,7 +154,7 @@ public class AssembleTask extends DefaultTask {
      */
     private void calculateTransitive(ResolvedDependency dependency, Map<String, ResolvedDependency> dependencies) {
         // breadth-first search guarantees nearest transitive dependencies are used
-        Map<String, ResolvedDependency> currentLevel =
+        var currentLevel =
                 dependency.getChildren().stream().filter(child -> !dependencies.containsKey(getKey(child))).collect(toMap(this::getKey, identity()));
         dependencies.putAll(currentLevel);
         currentLevel.values().forEach(child -> calculateTransitive(child, dependencies));
@@ -172,26 +168,26 @@ public class AssembleTask extends DefaultTask {
         if (getAppGroup().trim().length() == 0) {
             Logging.getLogger("rhizomatic-assembly").info("No application module group specified. Application modules will not be copied.");
         }
-        File imageDir = new File(project.getBuildDir(), "image");
+        var imageDir = new File(project.getBuildDir(), "image");
         if (imageDir.exists()) {
             // remove previously created image
             cleanDirectory(imageDir);
         }
 
-        File systemDir = new File(imageDir, "system");
+        var systemDir = new File(imageDir, "system");
         systemDir.mkdirs();
 
-        File librariesDir = new File(imageDir, "libraries");
+        var librariesDir = new File(imageDir, "libraries");
         librariesDir.mkdirs();
 
-        File appDir = new File(imageDir, "app");
+        var appDir = new File(imageDir, "app");
         appDir.mkdirs();
 
-        File webappDir = new File(imageDir, "webapp");
-        Map<String, String> webappNames = new HashMap<>();
-        for (String webapp : _webapps) {
+        var webappDir = new File(imageDir, "webapp");
+        var webappNames = new HashMap<String, String>();
+        for (var webapp : _webapps) {
             if (webapp.contains(":")) {
-                String[] tokens = webapp.split(":");  // context name is specified after the ':'
+                var tokens = webapp.split(":");  // context name is specified after the ':'
                 webappNames.put(tokens[0], tokens[1]);
             } else {
                 webappNames.put(webapp, webapp); // context and module name are the same
@@ -201,11 +197,11 @@ public class AssembleTask extends DefaultTask {
             webappDir.mkdirs();
         }
 
-        File patchLibrariesDir = new File(imageDir, "plibraries");
+        var patchLibrariesDir = new File(imageDir, "plibraries");
         patchLibrariesDir.mkdirs();
 
-        Configuration configuration = project.getConfigurations().getByName("compileClasspath");
-        Map<String, ProjectDependency> projectDependencies = new HashMap<>();
+        var configuration = project.getConfigurations().getByName("compileClasspath");
+        var projectDependencies = new HashMap<String, ProjectDependency>();
 
         configuration.getAllDependencies().forEach(dependency -> {
             if (dependency instanceof ProjectDependency) {
@@ -222,8 +218,8 @@ public class AssembleTask extends DefaultTask {
                 // Rhizomatic module
                 if (RHIZOMATIC_BOOTSTRAP_APP.equals(dependency.getModuleName())) {
                     // use RZ boot app
-                    String name = getBootstrapName();
-                    for (ResolvedArtifact artifact : dependency.getModuleArtifacts()) {
+                    var name = getBootstrapName();
+                    for (var artifact : dependency.getModuleArtifacts()) {
                         if (name == null) {
                             name = artifact.getFile().getName();
                         } else {
@@ -242,9 +238,9 @@ public class AssembleTask extends DefaultTask {
                 }
                 if (getBootstrapModule() != null && getBootstrapModule().equals(dependency.getModuleName())) {
                     // bootstrap module
-                    for (ResolvedArtifact artifact : dependency.getModuleArtifacts()) {
+                    for (var artifact : dependency.getModuleArtifacts()) {
                         File target;
-                        String name = getBootstrapName();
+                        var name = getBootstrapName();
                         if (name == null) {
                             target = new File(imageDir, artifact.getFile().getName());
                         } else {
@@ -254,9 +250,9 @@ public class AssembleTask extends DefaultTask {
                     }
                 } else if (webappNames.containsKey(dependency.getModuleName())) {
                     // Copy web app dist directory - only support exploded format
-                    ProjectDependency projectDependency = projectDependencies.get(getKey(dependency));
-                    File sourceDistDir = new File(projectDependency.getDependencyProject().getProjectDir(), "dist");
-                    File destDir = new File(webappDir, webappNames.get(dependency.getModuleName()));
+                    var projectDependency = projectDependencies.get(getKey(dependency));
+                    var sourceDistDir = new File(projectDependency.getDependencyProject().getProjectDir(), "dist");
+                    var destDir = new File(webappDir, webappNames.get(dependency.getModuleName()));
                     copyDirectory(sourceDistDir, destDir);
                 } else {
                     // app module
@@ -265,14 +261,14 @@ public class AssembleTask extends DefaultTask {
                         copy(dependency, appDir);
                     } else {
                         // using exploded format, get the other subproject and copy its compiled output
-                        ProjectDependency projectDependency = projectDependencies.get(getKey(dependency));
+                        var projectDependency = projectDependencies.get(getKey(dependency));
                         if (projectDependency != null) {
                             Project dependencyProject = projectDependency.getDependencyProject();
-                            JavaCompile compileTask = (JavaCompile) dependencyProject.getTasks().getByName("compileJava");
-                            File classesDir = compileTask.getDestinationDir();
+                            var compileTask = (JavaCompile) dependencyProject.getTasks().getByName("compileJava");
+                            var classesDir = compileTask.getDestinationDir();
 
-                            File buildDir = dependencyProject.getBuildDir();
-                            File resourcesDir = new File(buildDir, "resources" + File.separator + "main");
+                            var buildDir = dependencyProject.getBuildDir();
+                            var resourcesDir = new File(buildDir, "resources" + File.separator + "main");
                             if (classesDir.exists()) {
                                 copyDirectory(classesDir, new File(appDir, dependencyProject.getName()));
                             }
@@ -295,12 +291,12 @@ public class AssembleTask extends DefaultTask {
 
         // copy src/main/resources contents if configured
         if (isIncludeSourceDir()) {
-            File projectDir = project.getProjectDir();
-            File resourcesDir = new File(projectDir, "src" + File.separator + "main" + File.separator + "resources");
+            var projectDir = project.getProjectDir();
+            var resourcesDir = new File(projectDir, "src" + File.separator + "main" + File.separator + "resources");
             if (resourcesDir.isDirectory()) {
-                File[] files = resourcesDir.listFiles();
+                var files = resourcesDir.listFiles();
                 if (files != null) {
-                    for (File entry : files) {
+                    for (var entry : files) {
                         if (entry.isFile()) {
                             copyFile(entry, new File(imageDir, entry.getName()));
                         } else {
@@ -313,7 +309,7 @@ public class AssembleTask extends DefaultTask {
     }
 
     private void copy(ResolvedDependency dependency, File target) {
-        for (ResolvedArtifact artifact : dependency.getModuleArtifacts()) {
+        for (var artifact : dependency.getModuleArtifacts()) {
             copyFile(artifact.getFile(), new File(target, artifact.getFile().getName()));
         }
     }

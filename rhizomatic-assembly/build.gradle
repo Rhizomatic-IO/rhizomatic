@@ -5,25 +5,24 @@ dependencies {
     implementation gradleApi()
 }
 
+configurations.all {
+    exclude group: 'org.codehaus.groovy'
+}
+
 gradlePlugin {
     plugins {
         assemblyPlugin {
             id = "io.rhizomatic.assembly"
             implementationClass = "io.rhizomatic.gradle.assembly.RhizomaticAssemblyPlugin"
+            displayName = 'Rhizomatic Image Assembly Plugin'
+            description = 'Builds a Rhizomatic system image'
+            version = project.version
         }
     }
 }
 
 pluginBundle {
-	website = 'https://github.com/rhizomatic-io'
-	vcsUrl = 'https://github.com/rhizomatic-io/rhizomatic'
-	plugins {
-        assemblyPlugin {
-			id = 'io.rhizomatic.assembly'
-			displayName = 'Rhizomatic Image Assembly Plugin'
-			description = 'Builds a Rhizomatic system image'
-			tags = ['jigsaw', 'modules', 'java9', 'jpms', 'guice', 'jaxrs']
-			version = project.version
-		}
-	}
+    website = 'https://github.com/rhizomatic-io'
+    vcsUrl = 'https://github.com/rhizomatic-io/rhizomatic'
 }
+

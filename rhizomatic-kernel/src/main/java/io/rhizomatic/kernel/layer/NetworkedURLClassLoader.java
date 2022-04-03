@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -34,7 +33,7 @@ public class NetworkedURLClassLoader extends URLClassLoader {
      * Add a resource URL to the classloader.
      */
     public void addURL(URL url) {
-        SecurityManager sm = System.getSecurityManager();
+        var sm = System.getSecurityManager();
         if (sm != null) {
             sm.checkCreateClassLoader();
         }
@@ -45,7 +44,7 @@ public class NetworkedURLClassLoader extends URLClassLoader {
      * Add a parent to the classloader.
      */
     public void addParent(ClassLoader parent) {
-        SecurityManager sm = System.getSecurityManager();
+        var sm = System.getSecurityManager();
         if (sm != null) {
             sm.checkCreateClassLoader();
         }
@@ -56,7 +55,7 @@ public class NetworkedURLClassLoader extends URLClassLoader {
 
     public URL findResource(String name) {
         // look in parents
-        for (ClassLoader parent : parents) {
+        for (var parent : parents) {
             URL resource = parent.getResource(name);
             if (resource != null) {
                 return resource;
@@ -68,14 +67,14 @@ public class NetworkedURLClassLoader extends URLClassLoader {
 
     public Enumeration<URL> findResources(String name) throws IOException {
         // LinkedHashSet because we want all resources in the order found but no duplicates
-        Set<URL> resources = new LinkedHashSet<>();
-        for (ClassLoader parent : parents) {
-            Enumeration<URL> parentResources = parent.getResources(name);
+        var resources = new LinkedHashSet<URL>();
+        for (var parent : parents) {
+            var parentResources = parent.getResources(name);
             while (parentResources.hasMoreElements()) {
                 resources.add(parentResources.nextElement());
             }
         }
-        Enumeration<URL> myResources = super.findResources(name);
+        var myResources = super.findResources(name);
         while (myResources.hasMoreElements()) {
             resources.add(myResources.nextElement());
         }
@@ -89,7 +88,7 @@ public class NetworkedURLClassLoader extends URLClassLoader {
     protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         try {
             // look for previously loaded classes
-            Class<?> clazz = findLoadedClass(name);
+            var clazz = findLoadedClass(name);
             if (clazz == null) {
                 // look in the primary parent
                 try {
@@ -125,7 +124,7 @@ public class NetworkedURLClassLoader extends URLClassLoader {
             // private method Module.moduleInfoClass(). For named modules, this method delegates to Module.loadModuleInfoClass(), which loads the byte stream from the model
             // and then attempts to load it with a synthetic classloader. This loader re-writes the class using an embedded version of ASM ClassWriter in the
             // Module.loadModuleInfoClass() prior to loading it, replacing ACC_MODULE with ACC_INTERFACE. The is presumably because module-info.class contains ACC_MODULE
-            // which is recognized by the VM but not by all JDK classes. For example some classsloaders will throw NoClassDefFoundError when ACC_MODULE is found loading a class.
+            // which is recognized by the VM but not by all JDK classes. For example some classloaders will throw NoClassDefFoundError when ACC_MODULE is found loading a class.
             //
             // If the module-info.class is not re-written with ACC_MODULE replaced by ACC_INTERFACE, a NoClassDefFoundError definition error will be thrown when attempting to
             // instantiate module-info.

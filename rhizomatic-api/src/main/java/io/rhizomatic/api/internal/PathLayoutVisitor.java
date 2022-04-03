@@ -25,7 +25,7 @@ public class PathLayoutVisitor extends SimpleFileVisitor<Path> {
         if (dir.getFileName().toString().startsWith(".")) {
             return FileVisitResult.SKIP_SUBTREE;
         }
-        String[] segments = PathUtils.toSegments(dir);
+        var segments = PathUtils.toSegments(dir);
         if (excludes != EMPTY) {
             for (String[] exclude : excludes) {
                 if (segments.length < exclude.length) {
@@ -39,7 +39,7 @@ public class PathLayoutVisitor extends SimpleFileVisitor<Path> {
         }
         if (includes != EMPTY) {
             boolean match = false;
-            for (String[] include : includes) {
+            for (var include : includes) {
                 if (segments.length < include.length) {
                     continue;
                 }
@@ -54,7 +54,7 @@ public class PathLayoutVisitor extends SimpleFileVisitor<Path> {
             }
         }
         boolean match = false;
-        for (String[] matchSegments : matchPaths) {
+        for (var matchSegments : matchPaths) {
             if (PathUtils.endsWith(segments, matchSegments)) {
                 // match
                 match = true;
@@ -79,8 +79,8 @@ public class PathLayoutVisitor extends SimpleFileVisitor<Path> {
             if (matchPath.trim().length() == 0) {
                 throw new IllegalArgumentException("Path was empty");
             }
-            String[] segements = matchPath.split("/");
-            visitor.matchPaths.add(segements);
+            var segments = matchPath.split("/");
+            visitor.matchPaths.add(segments);
             return this;
         }
 
@@ -90,7 +90,7 @@ public class PathLayoutVisitor extends SimpleFileVisitor<Path> {
         public Builder includes(String... paths) {
             Objects.requireNonNull(paths, "Include paths was null");
             visitor.includes = new String[paths.length][];
-            for (int i = 0; i < paths.length; i++) {
+            for (var i = 0; i < paths.length; i++) {
                 visitor.includes[i] = paths[i].split("/");
 
             }
@@ -103,7 +103,7 @@ public class PathLayoutVisitor extends SimpleFileVisitor<Path> {
         public Builder excludes(String... paths) {
             Objects.requireNonNull(paths, "Exclude paths was null");
             visitor.excludes = new String[paths.length][];
-            for (int i = 0; i < paths.length; i++) {
+            for (var i = 0; i < paths.length; i++) {
                 visitor.excludes[i] = paths[i].split("/");
             }
             return this;

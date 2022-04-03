@@ -4,15 +4,13 @@ import io.rhizomatic.api.RhizomaticException;
 import io.rhizomatic.api.internal.PathLayoutVisitor;
 
 import java.io.IOException;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 import static io.rhizomatic.api.internal.PathUtils.walkParents;
+import static java.nio.file.Files.walkFileTree;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Builds a web application definition based on a root path. The included webapp locations can be customized based on inclusions, exclusions and Java class file directory partial
@@ -76,14 +74,14 @@ public class WebAppPathBuilder {
     }
 
     public WebApp build() {
-        Objects.requireNonNull(contextPath, "Web context path cannot be null");
-        Objects.requireNonNull(root, "Root path cannot be null");
+        requireNonNull(contextPath, "Web context path cannot be null");
+        requireNonNull(root, "Root path cannot be null");
         try {
-            List<Path> paths = new ArrayList<>();
+            var paths = new ArrayList<Path>();
             visitorBuilder.callback(paths::add);
-            FileVisitor<Path> visitor = visitorBuilder.build();
-            Files.walkFileTree(root, visitor);
-            return new WebApp(contextPath, paths.toArray(new Path[paths.size()]));
+            var visitor = visitorBuilder.build();
+            walkFileTree(root, visitor);
+            return new WebApp(contextPath, paths.toArray(new Path[0]));
         } catch (IOException e) {
             throw new RhizomaticException(e);
         }

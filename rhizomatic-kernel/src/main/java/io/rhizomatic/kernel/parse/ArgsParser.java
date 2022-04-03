@@ -28,7 +28,7 @@ public class ArgsParser {
     }
 
     public static Params parseParams(String... args) {
-        Params params = new Params();
+        var params = new Params();
         if (args == null || args.length == 0) {
             return params;
         } else if (args.length == 2) {
@@ -54,8 +54,8 @@ public class ArgsParser {
     }
 
     private static void parsePair(String[] args, int start, Params params) {
-        String flag = args[start];
-        String value = args[start + 1];
+        var flag = args[start];
+        var value = args[start + 1];
         parseArgument(flag, value, params);
     }
 

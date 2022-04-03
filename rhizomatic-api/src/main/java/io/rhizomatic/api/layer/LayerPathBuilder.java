@@ -4,18 +4,17 @@ import io.rhizomatic.api.RhizomaticException;
 import io.rhizomatic.api.internal.PathLayoutVisitor;
 
 import java.io.IOException;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 import static io.rhizomatic.api.internal.PathUtils.walkParents;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Builds a layer definition based on a root path. The included module locations can be customized based on inclusions, exclusions and Java class file directory partial paths.
  *
- * This builder can be used to a create layer definition from the file system image of a soource code repository.
+ * This builder can be used to create layer definition from the file system image of a soource code repository.
  */
 public class LayerPathBuilder {
     private String name;
@@ -53,7 +52,7 @@ public class LayerPathBuilder {
      * their platform-specific variant.
      */
     public LayerPathBuilder javaPath(String path) {
-        Objects.requireNonNull(path, "Java path was null");
+        requireNonNull(path, "Java path was null");
         if (path.trim().length() == 0) {
             throw new IllegalArgumentException("Java path was empty");
         }
@@ -79,12 +78,12 @@ public class LayerPathBuilder {
 
 
     public RzLayer build() {
-        Objects.requireNonNull(root, "Root path not set");
+        requireNonNull(root, "Root path not set");
         try {
-            RzLayer.Builder layerBuilder = RzLayer.Builder.newInstance(name);
+            var layerBuilder = RzLayer.Builder.newInstance(name);
             visitorBuilder.callback(layerBuilder::module);
 
-            FileVisitor<Path> visitor = visitorBuilder.build();
+            var visitor = visitorBuilder.build();
 
             Files.walkFileTree(root, visitor);
             return layerBuilder.build();

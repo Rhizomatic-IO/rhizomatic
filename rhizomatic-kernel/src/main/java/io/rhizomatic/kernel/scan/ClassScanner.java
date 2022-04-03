@@ -5,13 +5,12 @@ import io.rhizomatic.kernel.spi.layer.LoadedLayer;
 import io.rhizomatic.kernel.spi.scan.ScanIndex;
 
 import java.io.IOException;
-import java.lang.module.ModuleReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static io.rhizomatic.kernel.spi.util.ClassHelper.getClassName;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Scans and indexes a collection of classes.
@@ -31,15 +30,15 @@ public class ClassScanner {
      * @param loadedLayers the layers to scan
      */
     public ScanIndex scan(List<LoadedLayer> loadedLayers) {
-        for (LoadedLayer loadedLayer : loadedLayers) {
-            for (ModuleReference reference : loadedLayer.getReferences()) {
+        for (var loadedLayer : loadedLayers) {
+            for (var reference : loadedLayer.getReferences()) {
                 try {
                     reference.open().list().forEach(fileName -> {
                         if (fileName.endsWith(".class") && !fileName.startsWith("module-info") && !fileName.startsWith("package-info")) {
                             try {
-                                Module module = loadedLayer.getModule(reference);
+                                var module = loadedLayer.getModule(reference);
                                 // Important: load using the module classloader so the class is loaded using the module
-                                Class<?> type = module.getClassLoader().loadClass(getClassName(fileName));
+                                var type = module.getClassLoader().loadClass(getClassName(fileName));
                                 addClass(type);
                             } catch (ClassNotFoundException e) {
                                 throw new RhizomaticException("Error loading module: " + reference.descriptor().name(), e);
@@ -52,7 +51,7 @@ public class ClassScanner {
             }
         }
 
-        ScanIndex.Builder builder = ScanIndex.Builder.newInstance();
+        var builder = ScanIndex.Builder.newInstance();
         builder.layers(loadedLayers);
         introspectionService.introspect(cache, builder);
         return builder.build();
@@ -66,7 +65,7 @@ public class ClassScanner {
     public ScanIndex scan(Set<Class<?>> classes) {
         reset();
         classes.forEach(this::addClass);
-        ScanIndex.Builder builder = ScanIndex.Builder.newInstance();
+        var builder = ScanIndex.Builder.newInstance();
         introspectionService.introspect(cache, builder);
         return builder.build();
     }
@@ -77,14 +76,14 @@ public class ClassScanner {
      * @param clazz the class to scan
      */
     private void addClass(Class<?> clazz) {
-        Objects.requireNonNull(clazz, "Class to scan was null");
+        requireNonNull(clazz, "Class to scan was null");
         if (cache.contains(clazz)) {
             return;
         }
         cache.add(clazz);
     }
 
-    private void reset(){
+    private void reset() {
         cache.clear();
     }
 

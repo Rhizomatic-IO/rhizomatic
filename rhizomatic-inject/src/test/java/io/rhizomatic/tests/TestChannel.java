@@ -39,7 +39,7 @@ public class TestChannel implements TestProducer {
     }
 
     public void send(String message) {
-        for (TestSubscriber subscriber : subscribers) {
+        for (var subscriber : subscribers) {
             monitor.debug(() -> "Sending message: " + message);
             executor.submit(() -> subscriber.message(message));
         }

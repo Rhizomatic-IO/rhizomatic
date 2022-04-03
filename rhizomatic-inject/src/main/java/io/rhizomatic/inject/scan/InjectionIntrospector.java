@@ -6,19 +6,18 @@ import io.rhizomatic.api.annotations.Service;
 import io.rhizomatic.kernel.spi.scan.Introspector;
 import io.rhizomatic.kernel.spi.scan.ScanIndex;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import static java.lang.reflect.Modifier.isAbstract;
 
 /**
  * Introspects module classes for services and registers them with the scan index.
  */
 public class InjectionIntrospector implements Introspector {
     public void introspect(Class<?> type, ScanIndex.Builder builder) {
-        if (Modifier.isAbstract(type.getModifiers())) {
+        if (isAbstract(type.getModifiers())) {
             return;
         }
 
-        Service serviceAnnotation = type.getAnnotation(Service.class);
+        var serviceAnnotation = type.getAnnotation(Service.class);
 
         if (serviceAnnotation == null) {
             return;
@@ -31,7 +30,7 @@ public class InjectionIntrospector implements Introspector {
         }
 
         // introspect for @Init - only support public methods
-        for (Method method : type.getMethods()) {
+        for (var method : type.getMethods()) {
             if (method.getAnnotation(Init.class) != null) {
                 builder.initCallback(type, method);
             }

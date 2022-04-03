@@ -29,7 +29,7 @@ public class InjectionSubsystem extends Subsystem {
     }
 
     public void instantiate(SubsystemContext context) {
-        InjectionIntrospector introspector = new InjectionIntrospector();
+        var introspector = new InjectionIntrospector();
         context.registerService(Introspector.class, introspector);
 
         instanceManager = new GuiceInstanceManager();

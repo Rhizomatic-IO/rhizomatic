@@ -22,15 +22,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.DOMAIN;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.ENVIRONMENT;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.RUNTIME;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -75,15 +74,15 @@ public class RhizomaticSystem implements SubsystemContext {
     }
 
     public void instantiateLayers(List<RzLayer> layers) {
-        LayerManager layerManager = resolve(LayerManager.class);
+        var layerManager = resolve(LayerManager.class);
 
-        Set<String> openToModules = subsystems.stream().flatMap(s -> s.openModulesTo().stream()).collect(toSet());
+        var openToModules = subsystems.stream().flatMap(s -> s.openModulesTo().stream()).collect(toSet());
 
         loadedLayers = layerManager.load(layers, openToModules);
 
-        ScanIndex scanIndex = scan(loadedLayers);
+        var scanIndex = scan(loadedLayers);
 
-        InstanceManager instanceManager = resolve(InstanceManager.class);
+        var instanceManager = resolve(InstanceManager.class);
 
         instanceManager.register(Monitor.class, monitor);
 
@@ -95,11 +94,11 @@ public class RhizomaticSystem implements SubsystemContext {
     }
 
     public void instantiateClasspath(Set<Class<?>> classes, Set<Object> instances) {
-        ClassScanner classScanner = resolve(ClassScanner.class);
+        var classScanner = resolve(ClassScanner.class);
 
-        ScanIndex scanIndex = classScanner.scan(classes);
+        var scanIndex = classScanner.scan(classes);
 
-        InstanceManager instanceManager = resolve(InstanceManager.class);
+        var instanceManager = resolve(InstanceManager.class);
 
         instanceManager.register(Monitor.class, monitor);
         instances.forEach(instance -> {
@@ -111,7 +110,7 @@ public class RhizomaticSystem implements SubsystemContext {
         });
 
         //TODO populate context from configuration
-        RzServiceContext serviceContext = new RzServiceContext((String) configuration.get(RUNTIME), (String) configuration.get(DOMAIN), (String) configuration.get(ENVIRONMENT));
+        var serviceContext = new RzServiceContext((String) configuration.get(RUNTIME), (String) configuration.get(DOMAIN), (String) configuration.get(ENVIRONMENT));
         instanceManager.register(ServiceContext.class, serviceContext);
 
         instanceManager.wire(scanIndex);
@@ -128,7 +127,7 @@ public class RhizomaticSystem implements SubsystemContext {
     }
 
     public void shutdown() {
-        ListIterator<Subsystem> iterator = subsystems.listIterator(subsystems.size());
+        var iterator = subsystems.listIterator(subsystems.size());
         while (iterator.hasPrevious()) {
             iterator.previous().shutdown();
         }
@@ -148,7 +147,7 @@ public class RhizomaticSystem implements SubsystemContext {
     }
 
     public <T> void registerService(Class<T> type, T service) {
-        Objects.requireNonNull(service, "Service was null");
+        requireNonNull(service, "Service was null");
         List<Object> list = systemServices.computeIfAbsent(type, k -> new ArrayList<>());
         list.add(service);
     }
@@ -159,7 +158,7 @@ public class RhizomaticSystem implements SubsystemContext {
 
     @SuppressWarnings("unchecked")
     public <T> List<T> resolveAll(Class<T> type) {
-        List<T> list = (List<T>) systemServices.get(type);
+        var list = (List<T>) systemServices.get(type);
         if (list == null) {
             throw new RhizomaticException("System service not found for type: " + type.getName() + ". Ensure extensions are properly installed.");
         } else {
@@ -175,7 +174,7 @@ public class RhizomaticSystem implements SubsystemContext {
      * Scans all loaded layers for services.
      */
     private ScanIndex scan(List<LoadedLayer> loadedLayers) {
-        ClassScanner classScanner = resolve(ClassScanner.class);
+        var classScanner = resolve(ClassScanner.class);
         return classScanner.scan(loadedLayers);
     }
 
@@ -183,19 +182,19 @@ public class RhizomaticSystem implements SubsystemContext {
      * Composes the kernel and extension subsystems.
      */
     private List<Subsystem> composeSubsystems() {
-        List<Subsystem> subsystems = new ArrayList<>(Subsystems.getInstalled());
+        var subsystems = new ArrayList<>(Subsystems.getInstalled());
 
-        Subsystem scannerSubsystem = new ScannerSubsystem();
+        var scannerSubsystem = new ScannerSubsystem();
         subsystems.add(scannerSubsystem);
 
-        LayerSubsystem layerSubsystem = new LayerSubsystem();
+        var layerSubsystem = new LayerSubsystem();
         subsystems.add(layerSubsystem);
 
-        ReloaderSubsystem reloaderSubsystem = new ReloaderSubsystem();
+        var reloaderSubsystem = new ReloaderSubsystem();
         subsystems.add(reloaderSubsystem);
 
-        Iterable<Subsystem> extensions = ServiceLoader.load(Subsystem.class);
-        for (Subsystem extension : extensions) {
+        var extensions = ServiceLoader.load(Subsystem.class);
+        for (var extension : extensions) {
             if (subsystems.contains(extension)) {
                 continue; // subsystem is manually installed, e.g. from a test fixture; skip the service loader instance
             }

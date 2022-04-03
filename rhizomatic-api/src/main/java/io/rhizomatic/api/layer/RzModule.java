@@ -3,6 +3,8 @@ package io.rhizomatic.api.layer;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * A JPMS module configuration.
  */
@@ -11,7 +13,7 @@ public class RzModule {
     private RzLayer parent;
 
     public RzModule(Path location) {
-        Objects.requireNonNull(location, "Layer path was null");
+        requireNonNull(location, "Layer path was null");
         this.location = location;
     }
 

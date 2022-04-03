@@ -18,9 +18,9 @@ public class IntrospectionService {
     }
 
     void introspect(List<Class<?>> classes, ScanIndex.Builder builder) {
-        List<Introspector> introspectors = context.resolveAll(Introspector.class);
-        for (Class<?> clazz : classes) {
-            for (Introspector introspector : introspectors) {
+        var introspectors = context.resolveAll(Introspector.class);
+        for (var clazz : classes) {
+            for (var introspector : introspectors) {
                 introspector.introspect(clazz, builder);
             }
         }

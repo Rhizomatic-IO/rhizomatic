@@ -1,5 +1,7 @@
+//noinspection GroovyAssignabilityCheck
 buildscript {
 
+    //noinspection GroovyAssignabilityCheck
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -15,8 +17,9 @@ buildscript {
 
 }
 
+//noinspection GroovyAssignabilityCheck
 plugins {
-    id 'com.gradle.plugin-publish' version '0.9.9'
+    id 'com.gradle.plugin-publish' version '0.21.0'
 }
 
 project.description 'Rhizomatic'
@@ -27,31 +30,37 @@ subprojects {
     group 'io.rhizomatic'
     version '0.3.5'
 
+    //noinspection GroovyAssignabilityCheck
     repositories {
         mavenCentral()
         mavenLocal()
     }
 
-    apply plugin: 'java'
+    apply plugin: 'java-library'
+
     apply plugin: "org.javamodularity.moduleplugin"
+
     apply plugin: 'maven-publish'
 
     tasks.withType(Javadoc).all { enabled = false } // disable javadoc due to Gradle Java9 issue
 
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = '11'
+        targetCompatibility = '11'
+    }
+
     dependencies {
-        implementation group: 'org.jetbrains', name: 'annotations', version: '15.0'
-        testImplementation 'org.junit.jupiter:junit-jupiter-bom:' + junitVersion
+        api 'org.jetbrains:annotations:15.0'
+
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:' + junitVersion
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:' + junitVersion
     }
 
     task sourcesJar(type: Jar) {
         from sourceSets.main.allJava
     }
 
-//    task javadocJar(type: Jar) {
-//         from "../notice/javadoc/README.md"
-//    }
-
-
+    //noinspection GroovyAssignabilityCheck
     def pomConfig = {
         licenses {
             license {
@@ -72,7 +81,6 @@ subprojects {
             url 'https://github.com/Rhizomatic-IO/rhizomatic'
         }
     }
-
 
     publishing {
         publications {

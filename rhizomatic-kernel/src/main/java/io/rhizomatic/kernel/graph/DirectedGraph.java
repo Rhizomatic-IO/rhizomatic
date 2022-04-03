@@ -51,7 +51,7 @@ public class DirectedGraph<T> {
      * Removes a vertex. Also removes any associated edges.
      */
     public Vertex<T> remove(Vertex<T> vertex) {
-        List<Edge<T>> edges = new ArrayList<>(getOutgoingEdges(vertex));
+        var edges = new ArrayList<>(getOutgoingEdges(vertex));
         edges.forEach(this::removeEdge);
         graphVertices.remove(vertex);
         return vertex;
@@ -61,8 +61,8 @@ public class DirectedGraph<T> {
      * Returns the adjacent vertices to the given vertex.
      */
     public Set<Vertex<T>> getAdjacentVertices(Vertex<T> vertex) {
-        Set<Vertex<T>> adjacentVertices = new HashSet<>();
-        Set<Edge<T>> incidentEdges = getOutgoingEdges(vertex);
+        var adjacentVertices = new HashSet<Vertex<T>>();
+        var incidentEdges = getOutgoingEdges(vertex);
         if (incidentEdges != null) {
             adjacentVertices.addAll(incidentEdges.stream().map(edge -> edge.getOppositeVertex(vertex)).collect(Collectors.toList()));
         }
@@ -88,8 +88,8 @@ public class DirectedGraph<T> {
      */
     @Nullable
     public Edge<T> getEdge(Vertex<T> source, Vertex<T> sink) {
-        Set<Edge<T>> edges = getOutgoingEdges(source);
-        for (Edge<T> edge : edges) {
+        var edges = getOutgoingEdges(source);
+        for (var edge : edges) {
             if (edge.getSink() == sink) {
                 return edge;
             }
@@ -125,8 +125,8 @@ public class DirectedGraph<T> {
         if (graphEdges.contains(edge)) {
             return edge;
         }
-        Vertex<T> source = edge.getSource();
-        Vertex<T> sink = edge.getSink();
+        var source = edge.getSource();
+        var sink = edge.getSink();
 
         if (!graphVertices.containsKey(source)) {
             add(source);
@@ -134,7 +134,8 @@ public class DirectedGraph<T> {
         if ((sink != source) && !graphVertices.containsKey(sink)) {
             add(sink);
         }
-        Set<Edge<T>> sourceEdges = getOutgoingEdges(source);
+
+        var sourceEdges = getOutgoingEdges(source);
 
         sourceEdges.add(edge);
         if (source != sink) {
@@ -144,8 +145,8 @@ public class DirectedGraph<T> {
         }
 
         graphEdges.add(edge);
-        VertexHolder sourceHolder = graphVertices.get(edge.getSource());
-        VertexHolder sinkHolder = graphVertices.get(edge.getSink());
+        var sourceHolder = graphVertices.get(edge.getSource());
+        var sinkHolder = graphVertices.get(edge.getSink());
         sourceHolder.getOutgoingEdges().add(edge);
         sinkHolder.getIncomingEdges().add(edge);
         return edge;
@@ -163,10 +164,10 @@ public class DirectedGraph<T> {
      */
     public Edge<T> remove(Edge<T> edge) {
         removeEdge(edge);
-        Vertex<T> source = edge.getSource();
-        Vertex<T> sink = edge.getSink();
-        VertexHolder sourceHolder = graphVertices.get(source);
-        VertexHolder sinkHolder = graphVertices.get(sink);
+        var source = edge.getSource();
+        var sink = edge.getSink();
+        var sourceHolder = graphVertices.get(source);
+        var sinkHolder = graphVertices.get(sink);
         // remove the edge from the source's outgoing edges
         sourceHolder.getOutgoingEdges().remove(edge);
         // remove the edge from the sink's incoming edges
@@ -176,12 +177,12 @@ public class DirectedGraph<T> {
 
     private void removeEdge(Edge<T> edge) {
         // Remove the edge from the vertices incident edges.
-        Vertex<T> source = edge.getSource();
-        Set<Edge<T>> sourceEdges = getOutgoingEdges(source);
+        var source = edge.getSource();
+        var sourceEdges = getOutgoingEdges(source);
         sourceEdges.remove(edge);
 
-        Vertex<T> sink = edge.getSink();
-        Set<Edge<T>> sinkEdges = getIncomingEdges(sink);
+        var sink = edge.getSink();
+        var sinkEdges = getIncomingEdges(sink);
         sinkEdges.remove(edge);
 
         // Remove the edge from edgeSet
@@ -192,14 +193,14 @@ public class DirectedGraph<T> {
      * Returns the outgoing or incoming adjacent vertices for a given vertex
      */
     private List<Vertex<T>> getAdjacentVertices(Vertex<T> vertex, boolean outGoing) {
-        List<Vertex<T>> adjacentVertices = new ArrayList<>();
+        var adjacentVertices = new ArrayList<Vertex<T>>();
         Set<Edge<T>> edges;
         if (outGoing) {
             edges = getOutgoingEdges(vertex);
         } else {
             edges = getIncomingEdges(vertex);
         }
-        for (Edge<T> edge : edges) {
+        for (var edge : edges) {
             Vertex<T> oppositeVertex = edge.getOppositeVertex(vertex);
             adjacentVertices.add(oppositeVertex);
         }

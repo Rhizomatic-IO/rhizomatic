@@ -1,6 +1,5 @@
 package io.rhizomatic.web.jersey;
 
-import io.rhizomatic.api.Monitor;
 import org.glassfish.jersey.internal.inject.Binder;
 import org.glassfish.jersey.internal.inject.Binding;
 import org.glassfish.jersey.internal.inject.ClassBinding;
@@ -32,11 +31,8 @@ public class RzInjectionManager implements InjectionManager {
     // injection manager.
     private Map<Object, List<InstanceHolder>> holders = new HashMap<>();
 
-    private Monitor monitor;
-
-    public RzInjectionManager(Monitor monitor) {
+    public RzInjectionManager() {
         registerJerseyServices();
-        this.monitor = monitor;
     }
 
     public void completeRegistration() {
@@ -46,25 +42,24 @@ public class RzInjectionManager implements InjectionManager {
     }
 
     public void register(Binding binding) {
-        @SuppressWarnings("unchecked")
-        Set<Annotation> qualifiers = binding.getQualifiers();
+        var qualifiers = binding.getQualifiers();
         if (binding instanceof InstanceBinding) {
-            InstanceBinding<?> instanceBinding = (InstanceBinding) binding;
+            @SuppressWarnings("rawtypes") var instanceBinding = (InstanceBinding) binding;
             for (Object contract : binding.getContracts()) {
-                List<InstanceHolder> list = holders.computeIfAbsent(contract, k -> new ArrayList<>());
-                InstanceHolder holder = new InstanceHolder(instanceBinding.getService(), qualifiers);
+                var list = holders.computeIfAbsent(contract, k -> new ArrayList<>());
+                @SuppressWarnings("unchecked") var holder = new InstanceHolder(instanceBinding.getService(), qualifiers);
                 list.add(holder);
             }
         } else if (binding instanceof ClassBinding) {
-            ClassBinding classBinding = (ClassBinding) binding;
-            for (Object contract : binding.getContracts()) {
+            @SuppressWarnings("rawtypes") var classBinding = (ClassBinding) binding;
+            for (var contract : binding.getContracts()) {
                 try {
                     if (contract.equals(RequestScope.class)) {
                         continue;
                     }
-                    List<InstanceHolder> list = holders.computeIfAbsent(contract, k -> new ArrayList<>());
-                    Class<?> serviceClass = classBinding.getService();
-                    InstanceHolder holder = new InstanceHolder(serviceClass.getConstructor().newInstance(), qualifiers);
+                    var list = holders.computeIfAbsent(contract, k -> new ArrayList<>());
+                    var serviceClass = classBinding.getService();
+                    @SuppressWarnings("unchecked") var holder = new InstanceHolder(serviceClass.getConstructor().newInstance(), qualifiers);
                     list.add(holder);
                 } catch (Throwable e) {
                     // FIXME uncomment and remove all of this
@@ -73,10 +68,10 @@ public class RzInjectionManager implements InjectionManager {
                 }
             }
         } else if (binding instanceof SupplierInstanceBinding) {
-            SupplierInstanceBinding supplierBinding = (SupplierInstanceBinding) binding;
+            @SuppressWarnings("rawtypes") var supplierBinding = (SupplierInstanceBinding) binding;
             for (Object contract : binding.getContracts()) {
                 List<InstanceHolder> list = holders.computeIfAbsent(contract, k -> new ArrayList<>());
-                InstanceHolder holder = new InstanceHolder(supplierBinding.getSupplier().get(), qualifiers);
+                @SuppressWarnings("unchecked") InstanceHolder holder = new InstanceHolder(supplierBinding.getSupplier().get(), qualifiers);
                 list.add(holder);
             }
         }
@@ -84,7 +79,7 @@ public class RzInjectionManager implements InjectionManager {
     }
 
     public void register(Iterable<Binding> descriptors) {
-        for (Binding descriptor : descriptors) {
+        for (var descriptor : descriptors) {
             register(descriptor);
         }
     }
@@ -116,19 +111,19 @@ public class RzInjectionManager implements InjectionManager {
             // ignore the custom annotation
             qualifiers = null;
         }
-        List<InstanceHolder> list = holders.get(contract);
+        var list = holders.get(contract);
         if (list == null || list.isEmpty()) {
             return Collections.emptyList();
         }
-        List<ServiceHolder<T>> serviceHolders = new ArrayList<>();
-        for (InstanceHolder holder : list) {
+        var serviceHolders = new ArrayList<ServiceHolder<T>>();
+        for (var holder : list) {
             if (qualifiers == null) {
-                ServiceHolder<T> serviceHolder = new ServiceHolderImpl<T>((T) holder.instance, Set.of(contract));
+                var serviceHolder = new ServiceHolderImpl<>((T) holder.instance, Set.of(contract));
                 serviceHolders.add(serviceHolder);
             } else {
-                for (Annotation qualifier : qualifiers) {
+                for (var qualifier : qualifiers) {
                     if (holder.qualifiers.contains(qualifier)) {
-                        ServiceHolder<T> serviceHolder = new ServiceHolderImpl<T>((T) holder.instance, Set.of(contract));
+                        ServiceHolder<T> serviceHolder = new ServiceHolderImpl<>((T) holder.instance, Set.of(contract));
                         serviceHolders.add(serviceHolder);
                         break;
                     }
@@ -153,7 +148,7 @@ public class RzInjectionManager implements InjectionManager {
 
     @SuppressWarnings("unchecked")
     public <T> T getInstance(Type contract) {
-        List<InstanceHolder> list = holders.get(contract);
+        var list = holders.get(contract);
         if (list == null || list.isEmpty()) {
             return null;
         }
@@ -188,7 +183,7 @@ public class RzInjectionManager implements InjectionManager {
     }
 
     private void registerJerseyServices() {
-        List<InstanceHolder> list = new ArrayList<>();
+        var list = new ArrayList<InstanceHolder>();
         list.add(new InstanceHolder(new RzRequestScope(), Collections.emptySet()));
         holders.put(RequestScope.class, list);
     }
@@ -208,7 +203,7 @@ public class RzInjectionManager implements InjectionManager {
         }
     }
 
-    private class InstanceHolder {
+    private static class InstanceHolder {
         private Set<Annotation> qualifiers;
         private Object instance;
 

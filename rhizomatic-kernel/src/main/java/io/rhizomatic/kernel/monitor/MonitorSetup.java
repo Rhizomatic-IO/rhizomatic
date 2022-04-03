@@ -2,7 +2,6 @@ package io.rhizomatic.kernel.monitor;
 
 import io.rhizomatic.api.Monitor;
 
-import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.Handler;
@@ -23,13 +22,13 @@ public class MonitorSetup {
     public static Monitor initializeMonitor(Map<String, Object> configuration) {
         Monitor monitor;
 
-        List<Monitor> monitorExtensions = ServiceLoader.load(Monitor.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        var monitorExtensions = ServiceLoader.load(Monitor.class).stream().map(ServiceLoader.Provider::get).collect(toList());
 
         if (getBooleanProperty(MONITOR_JSON)) {
-            Monitor jsonMonitor = new JsonConsoleMonitor(JsonConsoleMonitor.Level.INFO);
+            var jsonMonitor = new JsonConsoleMonitor(JsonConsoleMonitor.Level.INFO);
             monitorExtensions.add(0, jsonMonitor);
         } else if (!Boolean.parseBoolean((String) configuration.get(CONSOLE_DISABLE))) {
-            Monitor consoleMonitor = new ConsoleMonitor(ConsoleMonitor.Level.INFO);
+            var consoleMonitor = new ConsoleMonitor(ConsoleMonitor.Level.INFO);
             monitorExtensions.add(0, consoleMonitor);
         }
         // add supplied monitors
@@ -49,9 +48,9 @@ public class MonitorSetup {
 
     public static void redirectJdkLogging(Monitor monitor) {
         // redirect JDK logging
-        Logger globalLogger = Logger.getLogger("");
-        Handler[] handlers = globalLogger.getHandlers();
-        for (Handler handler : handlers) {
+        var globalLogger = Logger.getLogger("");
+        var handlers = globalLogger.getHandlers();
+        for (var handler : handlers) {
             globalLogger.removeHandler(handler);
         }
         globalLogger.addHandler(new Handler() {
@@ -80,7 +79,7 @@ public class MonitorSetup {
 
     @SuppressWarnings("SameParameterValue")
     private static boolean getBooleanProperty(String key) {
-        String value = System.getenv(key);
+        var value = System.getenv(key);
         if (value == null) {
             value = System.getProperty(key);
             if (value == null) {

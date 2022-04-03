@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -19,8 +18,8 @@ public class PathUtils {
      * Converts a path to string segments based on the platform file separator.
      */
     public static String[] toSegments(Path path) {
-        List<String> segments = new ArrayList<>();
-        for (int i = 0; i < path.getNameCount(); i++) {
+        var segments = new ArrayList<String>();
+        for (var i = 0; i < path.getNameCount(); i++) {
             segments.add(path.getName(i).toString());
         }
         return segments.toArray(new String[segments.size()]);
@@ -37,7 +36,7 @@ public class PathUtils {
         }
 
         outer:
-        for (int i = 0; i < array.length - fragment.length + 1; i++) {
+        for (var i = 0; i < array.length - fragment.length + 1; i++) {
             for (int j = 0; j < fragment.length; j++) {
                 if (!array[i + j].equals(fragment[j])) {
                     continue outer;
@@ -58,7 +57,7 @@ public class PathUtils {
 
     public static Path walkParents(Predicate<Path> predicate) {
         try {
-            Path anchor = Paths.get(predicate.getClass().getResource("").toURI());
+            var anchor = Paths.get(predicate.getClass().getResource("").toURI());
             anchor = anchor.normalize();
             while (anchor.getParent() != null) {
                 anchor = anchor.getParent();

@@ -13,9 +13,9 @@ public class ScannerSubsystem extends Subsystem {
     }
 
     public void instantiate(SubsystemContext context) {
-        IntrospectionService introspectionService = new IntrospectionService(context);
+        var introspectionService = new IntrospectionService(context);
 
-        ClassScanner classScanner = new ClassScanner(introspectionService);
+        var classScanner = new ClassScanner(introspectionService);
         context.registerService(ClassScanner.class, classScanner);
     }
 

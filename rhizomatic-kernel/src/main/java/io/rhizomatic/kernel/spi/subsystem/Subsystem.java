@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Defines a subsystem and its lifecycle.
  */
@@ -11,7 +13,7 @@ public abstract class Subsystem {
     private String name;
 
     public Subsystem(String name) {
-        Objects.requireNonNull(name, "Subsystem name is null");
+        requireNonNull(name, "Subsystem name is null");
         this.name = name;
     }
 
@@ -63,7 +65,7 @@ public abstract class Subsystem {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Subsystem subsystem = (Subsystem) o;
+        var subsystem = (Subsystem) o;
         return Objects.equals(name, subsystem.name);
     }
 

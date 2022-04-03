@@ -18,9 +18,9 @@ public class WebIntrospector implements Introspector {
         }
 
         // check instance if it is a JAX-RS resource, JAX-RS provider or servlet
-        Path pathAnnotation = type.getAnnotation(Path.class);
-        Provider providerAnnotation = type.getAnnotation(Provider.class);
-        WebServlet servletAnnotation = type.getAnnotation(WebServlet.class);
+        var pathAnnotation = type.getAnnotation(Path.class);
+        var providerAnnotation = type.getAnnotation(Provider.class);
+        var servletAnnotation = type.getAnnotation(WebServlet.class);
 
         if (pathAnnotation == null && providerAnnotation == null && servletAnnotation == null) {
             return;

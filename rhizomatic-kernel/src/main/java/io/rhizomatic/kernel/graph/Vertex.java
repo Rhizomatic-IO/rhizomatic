@@ -20,6 +20,7 @@ public class Vertex<T> {
     }
 
 
+    @SuppressWarnings("rawtypes")
     public boolean equals(Object obj) {
         return obj instanceof Vertex && getEntity().equals(((Vertex) obj).getEntity());
     }

@@ -46,8 +46,8 @@ public class JettyTransport {
 
         server.setErrorHandler(new RzErrorHandler());
         try {
-            ContextHandlerCollection contexts = new ContextHandlerCollection();
-            contexts.setHandlers(handlers.toArray(new Handler[handlers.size()]));
+            var contexts = new ContextHandlerCollection();
+            contexts.setHandlers(handlers.toArray(new Handler[0]));
             server.setHandler(contexts);
             server.start();
 
@@ -73,7 +73,7 @@ public class JettyTransport {
     }
 
     private int getHttp(SubsystemContext context) {
-        Integer httpPort = context.getConfiguration(Integer.class, HTTP_PORT);
+        var httpPort = context.getConfiguration(Integer.class, HTTP_PORT);
         if (httpPort == null) {
             httpPort = 8080;
         }
