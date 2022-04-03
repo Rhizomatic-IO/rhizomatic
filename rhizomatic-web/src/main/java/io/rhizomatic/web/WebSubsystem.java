@@ -80,7 +80,7 @@ public class WebSubsystem extends Subsystem {
     }
 
     public void applicationInitialize(SubsystemContext context) {
-        InstanceManager instanceManager = context.resolve(InstanceManager.class);
+        var instanceManager = context.resolve(InstanceManager.class);
 
         // bootstrap Jersey endpoints and providers
         var resourceConfiguration = configureResources(instanceManager);
