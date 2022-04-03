@@ -1,7 +1,8 @@
 buildscript {
 
     repositories {
-        jcenter()
+        mavenCentral()
+        gradlePluginPortal()
         mavenLocal()
         maven {
             url "https://plugins.gradle.org/m2/"
@@ -9,33 +10,31 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.javamodularity:moduleplugin:1.5.0"
+        classpath "org.javamodularity:moduleplugin:1.8.10"
     }
 
 }
 
 plugins {
     id 'com.gradle.plugin-publish' version '0.9.9'
-    id "com.jfrog.bintray" version "1.8.4"
 }
 
 project.description 'Rhizomatic'
 
-def junitVersion = '5.0.0'
+def junitVersion = '5.8.2'
 
 subprojects {
     group 'io.rhizomatic'
-    version '0.3.4'
+    version '0.3.5'
 
     repositories {
-        jcenter()
+        mavenCentral()
         mavenLocal()
     }
 
     apply plugin: 'java'
     apply plugin: "org.javamodularity.moduleplugin"
     apply plugin: 'maven-publish'
-    apply plugin: 'com.jfrog.bintray'
 
     tasks.withType(Javadoc).all { enabled = false } // disable javadoc due to Gradle Java9 issue
 
@@ -94,32 +93,6 @@ subprojects {
             }
         }
     }
-
-    // secrets stored in ~/.gradle/gradle.properties NB key is the Bintray API key, not password
-    def bUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : 'undefined'
-    def bKey = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : 'undefined'
-
-    bintray {
-        user = bUser
-        key = bKey
-        publications = ['mavenJava']
-        pkg {
-            repo = 'Rhizomatic'
-            name = project.name
-            userOrg = 'rhizomatic'
-            licenses = ['MIT']
-            websiteUrl = 'https://github.com/Rhizomatic-IO/rhizomatic'
-            issueTrackerUrl = 'https://github.com/Rhizomatic-IO/rhizomatic/issues'
-            vcsUrl = 'https://github.com/Rhizomatic-IO/rhizomatic.git'
-            version {
-                name = project.version
-                desc = 'Rhizomatic'
-                released = new Date()
-                vcsTag = project.version
-            }
-        }
-    }
-
 
 
 }

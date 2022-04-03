@@ -28,7 +28,6 @@ import static java.util.stream.Collectors.toMap;
  * Assembles the Rhizomatic runtime image.
  */
 public class AssembleTask extends DefaultTask {
-    public static final String RHIZOMATIC_RELOAD = "rhizomatic-reload";
     public static final String RHIZOMATIC_BOOTSTRAP_APP = "rhizomatic-bootstrap-app";
     public static final String RHIZOMATIC_GROUP = "io.rhizomatic";
     private String appGroup = "";  // the group name for application modules
@@ -210,8 +209,8 @@ public class AssembleTask extends DefaultTask {
 
         configuration.getAllDependencies().forEach(dependency -> {
             if (dependency instanceof ProjectDependency) {
-                if (RHIZOMATIC_RELOAD.equals(dependency.getName()) && RHIZOMATIC_GROUP.equals(dependency.getGroup())) {
-                    // do not include transitive dependencies of reload since JRebel is added on the boot module path
+                if (RHIZOMATIC_GROUP.equals(dependency.getGroup())) {
+                    // do not include dependencies
                     return;
                 }
                 projectDependencies.put(dependency.getGroup() + ":" + dependency.getName(), (ProjectDependency) dependency);
@@ -221,13 +220,7 @@ public class AssembleTask extends DefaultTask {
         for (ResolvedDependency dependency : transitiveDependencies.values()) {
             if (RHIZOMATIC_GROUP.equals(dependency.getModuleGroup())) {
                 // Rhizomatic module
-                if (RHIZOMATIC_RELOAD.equals(dependency.getModuleName())) {
-                    // reload module, if reload is enabled, copy it
-                    if (reload) {
-                        File reloadDir = new File(imageDir, "reload");
-                        copy(dependency, reloadDir);
-                    }
-                } else if (RHIZOMATIC_BOOTSTRAP_APP.equals(dependency.getModuleName())) {
+                if (RHIZOMATIC_BOOTSTRAP_APP.equals(dependency.getModuleName())) {
                     // use RZ boot app
                     String name = getBootstrapName();
                     for (ResolvedArtifact artifact : dependency.getModuleArtifacts()) {

@@ -232,7 +232,6 @@ dependencies {
     compile group: 'io.rhizomatic', name: 'rhizomatic-kernel', version: rzVersion
     compile group: 'io.rhizomatic', name: 'rhizomatic-inject', version: rzVersion
     compile group: 'io.rhizomatic', name: 'rhizomatic-web', version: rzVersion
-    compile group: 'io.rhizomatic', name: 'rhizomatic-reload', version: rzVersion
 
     compile project(":webapp")
     compile project(":message-service")
