@@ -39,20 +39,17 @@ subprojects {
     tasks.withType(Javadoc).all { enabled = false } // disable javadoc due to Gradle Java9 issue
 
     dependencies {
-        compile group: 'org.jetbrains', name: 'annotations', version: '15.0'
-        testCompile 'org.junit.jupiter:junit-jupiter-api:' + junitVersion
-        testRuntime 'org.junit.jupiter:junit-jupiter-engine:' + junitVersion
+        implementation group: 'org.jetbrains', name: 'annotations', version: '15.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-bom:' + junitVersion
     }
 
     task sourcesJar(type: Jar) {
-        classifier = 'sources'
         from sourceSets.main.allJava
     }
 
-    task javadocJar(type: Jar) {
-        classifier = 'javadoc'
-        from "../notice/javadoc/README.md"
-    }
+//    task javadocJar(type: Jar) {
+//         from "../notice/javadoc/README.md"
+//    }
 
 
     def pomConfig = {
@@ -81,8 +78,6 @@ subprojects {
         publications {
             mavenJava(MavenPublication) {
                 from components.java
-                artifact sourcesJar
-                artifact javadocJar
                 pom.withXml {
                     def root = asNode()
                     root.appendNode('description', 'Rhizomatic modular runtime')
