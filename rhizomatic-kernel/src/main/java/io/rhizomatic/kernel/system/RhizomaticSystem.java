@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-import static io.rhizomatic.kernel.spi.ConfigurationKeys.DOMAIN;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.ENVIRONMENT;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.RUNTIME;
 import static java.util.Objects.requireNonNull;
@@ -87,7 +86,7 @@ public class RhizomaticSystem implements SubsystemContext {
         instanceManager.register(Monitor.class, monitor);
 
         //TODO populate context from configuration
-        serviceContext = new RzServiceContext((String) configuration.get(RUNTIME), (String) configuration.get(DOMAIN), (String) configuration.get(ENVIRONMENT));
+        serviceContext = new RzServiceContext((String) configuration.get(RUNTIME), (String) configuration.get(ENVIRONMENT));
         instanceManager.register(ServiceContext.class, serviceContext);
 
         instanceManager.wire(scanIndex);
@@ -110,7 +109,7 @@ public class RhizomaticSystem implements SubsystemContext {
         });
 
         //TODO populate context from configuration
-        var serviceContext = new RzServiceContext((String) configuration.get(RUNTIME), (String) configuration.get(DOMAIN), (String) configuration.get(ENVIRONMENT));
+        var serviceContext = new RzServiceContext((String) configuration.get(RUNTIME), (String) configuration.get(ENVIRONMENT));
         instanceManager.register(ServiceContext.class, serviceContext);
 
         instanceManager.wire(scanIndex);

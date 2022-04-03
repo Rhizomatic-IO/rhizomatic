@@ -23,7 +23,6 @@ import java.util.Set;
 
 import static io.rhizomatic.kernel.monitor.MonitorSetup.initializeMonitor;
 import static io.rhizomatic.kernel.monitor.MonitorSetup.redirectJdkLogging;
-import static io.rhizomatic.kernel.spi.ConfigurationKeys.DOMAIN;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.ENVIRONMENT;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.RUNTIME;
 
@@ -99,7 +98,7 @@ public class Rhizomatic {
             monitor.info(() -> "Shutdown complete");
         }));
 
-        monitor.info(() -> "Starting " + configuration.get(DOMAIN) + "/" + configuration.get(RUNTIME));
+        monitor.info(() -> "Starting " + configuration.get(RUNTIME));
 
         rhizomatic.start();
 
@@ -161,7 +160,6 @@ public class Rhizomatic {
 
     private static Map<String, Object> loadConfiguration(Map<String, Object> base) {
         Map<String, Object> configuration = new HashMap<>(base);
-        configuration.putIfAbsent(DOMAIN, "domain");
         configuration.putIfAbsent(RUNTIME, "runtime");
         configuration.putIfAbsent(ENVIRONMENT, "production");
         return configuration;

@@ -10,24 +10,18 @@ import java.util.List;
  */
 public class RzServiceContext implements ServiceContext {
     private String runtimeName;
-    private String domain;
     private String environment;
 
     private List<Runnable> bootCallbacks = new ArrayList<>();
     private List<Runnable> shutdownCallbacks = new ArrayList<>();
 
-    public RzServiceContext(String runtimeName, String domain, String environment) {
+    public RzServiceContext(String runtimeName, String environment) {
         this.runtimeName = runtimeName;
-        this.domain = domain;
         this.environment = environment;
     }
 
     public String getRuntimeName() {
         return runtimeName;
-    }
-
-    public String getDomain() {
-        return domain;
     }
 
     public String getEnvironment() {
