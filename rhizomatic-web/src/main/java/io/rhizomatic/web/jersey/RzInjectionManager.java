@@ -96,6 +96,11 @@ public class RzInjectionManager implements InjectionManager {
         return false;
     }
 
+    @Override
+    public <T> T create(Class<T> createMe) {
+        throw new UnsupportedOperationException();
+    }
+
     public <T> T createAndInitialize(Class<T> implClass) {
         try {
             return implClass.getConstructor().newInstance();

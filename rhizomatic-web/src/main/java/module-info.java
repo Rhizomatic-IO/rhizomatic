@@ -16,7 +16,7 @@ open module io.rhizomatic.web {
     requires jersey.container.servlet.core;
     requires jersey.server;
     requires jersey.common;
-    requires javax.annotation.api;  // needed by Jersey
+//    requires javax.annotation.api;  // needed by Jersey
     requires com.fasterxml.jackson.jaxrs.json;
     requires com.fasterxml.jackson.databind;
 

@@ -213,7 +213,7 @@ public class AssembleTask extends DefaultTask {
             }
         });
         // Copy runtime image: Rhizomatic modules to /system, application modules to /app; otherwise to /libraries
-        for (ResolvedDependency dependency : transitiveDependencies.values()) {
+        for (var dependency : transitiveDependencies.values()) {
             if (RHIZOMATIC_GROUP.equals(dependency.getModuleGroup())) {
                 // Rhizomatic module
                 if (RHIZOMATIC_BOOTSTRAP_APP.equals(dependency.getModuleName())) {

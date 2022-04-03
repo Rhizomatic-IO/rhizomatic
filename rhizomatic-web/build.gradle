@@ -1,4 +1,4 @@
-def jerseyVersion = '2.26'
+def jerseyVersion = '2.35'
 
 dependencies {
     implementation project(':rhizomatic-api')
@@ -6,7 +6,7 @@ dependencies {
 
     api group: 'javax.inject', name: 'javax.inject', version: '1'
 
-    api group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1'
+//    api group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1'
 
     api group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.0'
 
@@ -25,8 +25,13 @@ dependencies {
         exclude group: 'org.glassfish.hk2.external'
     }
 
-    api 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.13.2'
+    api('com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.13.2') {
+//        exclude module: "jackson-module-jaxb-annotations"
+    }
     api 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.13.2'
+
+    implementation("jakarta.xml.bind:jakarta.xml.bind-api:2.3.3")
+
 
 
 }
