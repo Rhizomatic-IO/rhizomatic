@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import io.rhizomatic.api.Monitor;
 import io.rhizomatic.api.annotations.EndpointPath;
-import io.rhizomatic.api.web.WebApp;
 import io.rhizomatic.kernel.spi.inject.InstanceManager;
 import io.rhizomatic.kernel.spi.reload.ReloadListener;
 import io.rhizomatic.kernel.spi.reload.RzReloader;
@@ -71,7 +70,7 @@ public class WebSubsystem extends Subsystem {
         jettyTransport.initialize(context);
         context.registerService(JettyTransport.class, jettyTransport);
 
-        WebIntrospector introspector = new WebIntrospector();
+        var introspector = new WebIntrospector();
         context.registerService(Introspector.class, introspector);
         monitor.info(() -> "Web subsystem enabled");
     }
@@ -84,7 +83,7 @@ public class WebSubsystem extends Subsystem {
         InstanceManager instanceManager = context.resolve(InstanceManager.class);
 
         // bootstrap Jersey endpoints and providers
-        Map<String, ResourceConfig> resourceConfiguration = configureResources(instanceManager);
+        var resourceConfiguration = configureResources(instanceManager);
         configureProviders(resourceConfiguration, instanceManager);
         exportResources(resourceConfiguration);
 
@@ -105,7 +104,7 @@ public class WebSubsystem extends Subsystem {
     }
 
     protected void configureProviders(Map<String, ResourceConfig> resourceConfiguration, InstanceManager instanceManager) {
-        Set<?> providers = instanceManager.resolveQualifiedTypes(Provider.class);
+        var providers = instanceManager.resolveQualifiedTypes(Provider.class);
         for (ResourceConfig resourceConfig : resourceConfiguration.values()) {
             for (Object provider : providers) {
                 resourceConfig.register(provider);
@@ -114,14 +113,14 @@ public class WebSubsystem extends Subsystem {
     }
 
     protected Map<String, ResourceConfig> configureResources(InstanceManager instanceManager) {
-        Set<?> endpoints = instanceManager.resolveQualifiedTypes(Path.class);
-        Map<String, ResourceConfig> resourceConfigs = new HashMap<>();
-        for (Object endpoint : endpoints) {
-            EndpointPath endpointPath = endpoint.getClass().getModule().getAnnotation(EndpointPath.class);
-            String rootPath = endpointPath != null ? endpointPath.value() : "api";
-            ResourceConfig resourceConfig = resourceConfigs.computeIfAbsent(rootPath, k -> new ResourceConfig());
+        var endpoints = instanceManager.resolveQualifiedTypes(Path.class);
+        var resourceConfigs = new HashMap<String, ResourceConfig>();
+        for (var endpoint : endpoints) {
+            var endpointPath = endpoint.getClass().getModule().getAnnotation(EndpointPath.class);
+            var rootPath = endpointPath != null ? endpointPath.value() : "api";
+            var resourceConfig = resourceConfigs.computeIfAbsent(rootPath, k -> new ResourceConfig());
 
-            JacksonJsonProvider jacksonJsonProvider = createJacksonProvider(instanceManager);
+            var jacksonJsonProvider = createJacksonProvider(instanceManager);
 
             resourceConfig.registerInstances(jacksonJsonProvider);
             resourceConfig.register(endpoint);
@@ -130,25 +129,25 @@ public class WebSubsystem extends Subsystem {
     }
 
     protected void exportResources(Map<String, ResourceConfig> configurations) {
-        for (Map.Entry<String, ResourceConfig> entry : configurations.entrySet()) {
-            String rootPath = entry.getKey();
+        for (var entry : configurations.entrySet()) {
+            var rootPath = entry.getKey();
 
-            ResourceConfig resourceConfig = entry.getValue();
+            var resourceConfig = entry.getValue();
 
-            ServletContainer servletContainer = new ServletContainer();
-            Holder holder = new Holder(rootPath, servletContainer, resourceConfig);
+            var servletContainer = new ServletContainer();
+            var holder = new Holder(rootPath, servletContainer, resourceConfig);
             pathToContainers.put(rootPath, holder); // track the root path and container for reloading (resource additions)
-            for (Object instance : resourceConfig.getSingletons()) {
+            for (var instance : resourceConfig.getSingletons()) {
                 // track the instance and the container it is running in for reloading
                 instanceToContainers.put(instance, holder);
             }
 
-            ServletHolder servletHolder = new ServletHolder(Source.EMBEDDED);
+            var servletHolder = new ServletHolder(Source.EMBEDDED);
             servletHolder.setName(RHIZOMATIC_REST + "_" + rootPath);
             servletHolder.setServlet(servletContainer);
             servletHolder.setInitOrder(1);
 
-            ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+            var handler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
             handler.setContextPath("/");
             jettyTransport.registerHandler(handler);
             handler.getServletHandler().addServletWithMapping(servletHolder, "/" + rootPath + "/*");
@@ -159,21 +158,21 @@ public class WebSubsystem extends Subsystem {
     }
 
     protected void createWebApps(SubsystemContext context) {
-        for (WebApp webApp : context.getWebApps()) {
+        for (var webApp : context.getWebApps()) {
             java.nio.file.Path[] contentRoots = webApp.getContentRoots();
 
-            String[] rootStrings = Arrays.stream(contentRoots).map(java.nio.file.Path::toString).toArray(String[]::new);
-            ResourceCollection resources = new ResourceCollection(rootStrings);
+            var rootStrings = Arrays.stream(contentRoots).map(java.nio.file.Path::toString).toArray(String[]::new);
+            var resources = new ResourceCollection(rootStrings);
 
-            String contextPath = webApp.getContextPath();
-            RewriteHandler rewriteHandler = new RewriteHandler();
+            var contextPath = webApp.getContextPath();
+            var rewriteHandler = new RewriteHandler();
 
-            ResourceHandler resourceHandler = new ResourceHandler();
+            var resourceHandler = new ResourceHandler();
             resourceHandler.setBaseResource(resources);
 
             rewriteHandler.setHandler(resourceHandler);
 
-            ContextHandler ctx = new ContextHandler(contextPath); /* the server uri path */
+            var ctx = new ContextHandler(contextPath); /* the server uri path */
             ctx.setHandler(rewriteHandler);
 
             jettyTransport.registerHandler(ctx);
@@ -190,14 +189,15 @@ public class WebSubsystem extends Subsystem {
             @SuppressWarnings("unchecked")
             // overrides the mapper locator method to resolve the instance from the instance manager
             protected ObjectMapper _locateMapperViaProvider(Class<?> type, MediaType mediaType) {
-                Set<?> providers = instanceManager.resolveQualifiedTypes(Provider.class);
-                for (Object provider : providers) {
+                var providers = instanceManager.resolveQualifiedTypes(Provider.class);
+                for (var provider : providers) {
                     if (provider instanceof ContextResolver) {
                         for (Type interfaze : provider.getClass().getGenericInterfaces()) {
                             if (interfaze instanceof ParameterizedType) {
                                 ParameterizedType parameterizedType = (ParameterizedType) interfaze;
                                 if (parameterizedType.getRawType().equals(ContextResolver.class)) {
                                     if (parameterizedType.getActualTypeArguments()[0].equals(ObjectMapper.class)) {
+                                        //noinspection rawtypes
                                         return (ObjectMapper) ((ContextResolver) provider).getContext(Object.class);
                                     }
                                 }
@@ -219,7 +219,7 @@ public class WebSubsystem extends Subsystem {
             if (notJaxRS(instance)) {
                 return;
             }
-            Holder holder = instanceToContainers.get(instance);
+            var holder = instanceToContainers.get(instance);
             if (holder == null) {
                 // if the instance is not tracked, it could be that is did not have JAX-RS annotations prior to the change
                 onInstanceAdded(instance);
@@ -233,9 +233,9 @@ public class WebSubsystem extends Subsystem {
             if (notJaxRS(instance)) {
                 return;
             }
-            String rootPath = getRootPath(instance);
+            var rootPath = getRootPath(instance);
 
-            Holder holder = pathToContainers.get(rootPath);
+            var holder = pathToContainers.get(rootPath);
             if (holder == null) {
                 // TODO support adding new context?
                 return;
@@ -262,9 +262,9 @@ public class WebSubsystem extends Subsystem {
     }
 
     private String getRootPath(Object instance) {
-        Class<?> clazz = instance.getClass();
-        Module module = clazz.getModule();
-        String rootPath = "api";
+        var clazz = instance.getClass();
+        var module = clazz.getModule();
+        var rootPath = "api";
         if (module != null && module.getAnnotation(EndpointPath.class) != null) {
             rootPath = module.getAnnotation(EndpointPath.class).value();
         }
@@ -272,7 +272,7 @@ public class WebSubsystem extends Subsystem {
     }
 
 
-    private class Holder {
+    private static class Holder {
         String rootPath;
         ServletContainer servletContainer;
         ResourceConfig resourceConfig;
