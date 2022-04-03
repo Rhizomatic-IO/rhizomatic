@@ -1,32 +1,32 @@
 def jerseyVersion = '2.26'
 
 dependencies {
-    compile project(':rhizomatic-api')
-    compile project(':rhizomatic-kernel')
+    implementation project(':rhizomatic-api')
+    implementation project(':rhizomatic-kernel')
 
-    compile group: 'javax.inject', name: 'javax.inject', version: '1'
+    implementation group: 'javax.inject', name: 'javax.inject', version: '1'
 
-    compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1'
+    implementation group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1'
 
-    compile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.0'
+    implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.0'
 
-    compile('org.eclipse.jetty:jetty-webapp:9.4.12.v20180830') {
+    implementation('org.eclipse.jetty:jetty-webapp:9.4.12.v20180830') {
         exclude module: 'jetty-xml'
     }
 
-    compile('org.glassfish.jersey.core:jersey-server:${jerseyVersion}') {
+    implementation('org.glassfish.jersey.core:jersey-server:${jerseyVersion}') {
         exclude group: 'org.glassfish.hk2'
         exclude module: 'jersey-media-jaxb'
         exclude module: 'jersey-hk2'
         exclude group: 'org.glassfish.hk2.external'
     }
 
-    compile("org.glassfish.jersey.containers:jersey-container-servlet:${jerseyVersion}") {
+    implementation("org.glassfish.jersey.containers:jersey-container-servlet:${jerseyVersion}") {
         exclude group: 'org.glassfish.hk2.external'
     }
 
-    compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.13.2'
-    compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.13.2'
+    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.13.2'
+    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.13.2'
 
     //compile group: 'javax.activation', name: 'activation', version: '1.1.1'
 
