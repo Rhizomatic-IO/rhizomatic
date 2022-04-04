@@ -178,8 +178,8 @@ public class SomeTest{
         InjectionModule.install();
         WebModule.install();
 
-        Rhizomatic.Builder builder = Rhizomatic.Builder.newInstance();
-        Rhizomatic rhizomatic = builder.moduleMode(false).silent(true).services(HelloImpl.class, TestResource.class).build();
+        var builder = Rhizomatic.Builder.newInstance();
+        var rhizomatic = builder.moduleMode(false).silent(true).services(HelloImpl.class, TestResource.class).build();
 
         // ....
         
