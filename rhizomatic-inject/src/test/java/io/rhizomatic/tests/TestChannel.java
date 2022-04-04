@@ -1,12 +1,12 @@
 package io.rhizomatic.tests;
 
+import com.google.inject.Inject;
 import io.rhizomatic.api.Monitor;
 import io.rhizomatic.api.ServiceContext;
 import io.rhizomatic.api.annotations.Eager;
 import io.rhizomatic.api.annotations.Init;
 import io.rhizomatic.api.annotations.Service;
 
-import javax.inject.Inject;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 

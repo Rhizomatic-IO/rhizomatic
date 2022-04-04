@@ -82,16 +82,18 @@ subprojects {
         }
     }
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                pom.withXml {
-                    def root = asNode()
-                    root.appendNode('description', 'Rhizomatic modular runtime')
-                    root.appendNode('name', 'Rhizomatic')
-                    root.appendNode('url', 'https://github.com/Rhizomatic-IO/rhizomatic')
-                    root.children().last() + pomConfig
+    if (!name.equals("rhizomatic-assembly")) {  // avoid Gradle duplicate publication warning
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    from components.java
+                    pom.withXml {
+                        def root = asNode()
+                        root.appendNode('description', 'Rhizomatic modular runtime')
+                        root.appendNode('name', 'Rhizomatic')
+                        root.appendNode('url', 'https://github.com/Rhizomatic-IO/rhizomatic')
+                        root.children().last() + pomConfig
+                    }
                 }
             }
         }

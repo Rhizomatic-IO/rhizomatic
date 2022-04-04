@@ -10,7 +10,6 @@ module io.rhizomatic.inject {
 
     requires io.rhizomatic.api;
     requires io.rhizomatic.kernel;
-    requires javax.inject;
     requires com.google.guice;
     requires static annotations;
 

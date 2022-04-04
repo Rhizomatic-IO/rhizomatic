@@ -28,7 +28,6 @@ If you do not want to use service class scanning or your services require specia
 ```java
 open module module.a {
     
-    requires javax.inject;
     requires io.rhizomatic.api;
 
     provides com.google.inject.Module with CustomModule;
@@ -63,7 +62,6 @@ Base URIs for resource services can be defined using the ```o.rhizomatic.api.ann
 @EndpointPath("api")
 open module module.a {
     
-    requires javax.inject;
     requires java.ws.rs;
     requires io.rhizomatic.api;
    
