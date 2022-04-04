@@ -6,8 +6,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Visits a file system layout, matching paths based on the configured path segments, inclusions, and exclusions.
@@ -75,7 +76,7 @@ public class PathLayoutVisitor extends SimpleFileVisitor<Path> {
          * Path segment to match, e.g. foo/bar/bax will match against the segment foo/bar.
          */
         public Builder matchPath(String matchPath) {
-            Objects.requireNonNull(matchPath, "Path was null");
+            requireNonNull(matchPath, "Path was null");
             if (matchPath.trim().length() == 0) {
                 throw new IllegalArgumentException("Path was empty");
             }
@@ -88,7 +89,7 @@ public class PathLayoutVisitor extends SimpleFileVisitor<Path> {
          * Include the given path fragments.
          */
         public Builder includes(String... paths) {
-            Objects.requireNonNull(paths, "Include paths was null");
+            requireNonNull(paths, "Include paths was null");
             visitor.includes = new String[paths.length][];
             for (var i = 0; i < paths.length; i++) {
                 visitor.includes[i] = paths[i].split("/");
@@ -101,7 +102,7 @@ public class PathLayoutVisitor extends SimpleFileVisitor<Path> {
          * Exclude the given path fragments.
          */
         public Builder excludes(String... paths) {
-            Objects.requireNonNull(paths, "Exclude paths was null");
+            requireNonNull(paths, "Exclude paths was null");
             visitor.excludes = new String[paths.length][];
             for (var i = 0; i < paths.length; i++) {
                 visitor.excludes[i] = paths[i].split("/");

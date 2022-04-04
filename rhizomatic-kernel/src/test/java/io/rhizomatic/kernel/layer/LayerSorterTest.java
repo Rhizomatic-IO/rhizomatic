@@ -23,7 +23,7 @@ public class LayerSorterTest {
         var sorted = LayerSorter.topologicalSort(List.of(layer1, layer4, layer3, layer2));
 
         Assertions.assertSame(layer1, sorted.get(0));  // first must be layer 1
-        Assertions.assertSame(layer4, sorted.get(3));  // last must be layer 4
+        Assertions.assertTrue(sorted.indexOf(layer4) > sorted.indexOf(layer3));
     }
 
 }

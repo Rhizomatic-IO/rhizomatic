@@ -101,7 +101,7 @@ public class RhizomaticSystem implements SubsystemContext {
 
         instanceManager.register(Monitor.class, monitor);
         instances.forEach(instance -> {
-            Class<?> clazz = instance.getClass();
+            var clazz = instance.getClass();
             if (clazz.getInterfaces().length == 1 && !clazz.getPackageName().startsWith("java.")) {
                 instanceManager.register(clazz.getInterfaces()[0], instance);
             }
@@ -147,7 +147,7 @@ public class RhizomaticSystem implements SubsystemContext {
 
     public <T> void registerService(Class<T> type, T service) {
         requireNonNull(service, "Service was null");
-        List<Object> list = systemServices.computeIfAbsent(type, k -> new ArrayList<>());
+        var list = systemServices.computeIfAbsent(type, k -> new ArrayList<>());
         list.add(service);
     }
 

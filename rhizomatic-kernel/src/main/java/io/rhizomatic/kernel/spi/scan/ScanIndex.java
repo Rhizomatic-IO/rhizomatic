@@ -17,10 +17,10 @@ import java.util.Set;
  */
 public class ScanIndex {
     private static final Comparator<Class<?>> ORDER_COMPARATOR = (c1, c2) -> {
-        Service a1 = c1.getAnnotation(Service.class);
-        Service a2 = c2.getAnnotation(Service.class);
-        int order1 = a1 != null ? a1.order() : Integer.MIN_VALUE;
-        int order2 = a2 != null ? a2.order() : Integer.MIN_VALUE;
+        var a1 = c1.getAnnotation(Service.class);
+        var a2 = c2.getAnnotation(Service.class);
+        var order1 = a1 != null ? a1.order() : Integer.MIN_VALUE;
+        var order2 = a2 != null ? a2.order() : Integer.MIN_VALUE;
         return order1 - order2;
     };
 
@@ -59,7 +59,7 @@ public class ScanIndex {
     }
 
     public boolean hasErrors() {
-        for (Problem problem : problems) {
+        for (var problem : problems) {
             if (Problem.Type.ERROR == problem.getType()) {
                 return true;
             }
@@ -72,15 +72,15 @@ public class ScanIndex {
 
     public static class Builder {
         private ScanIndex index;
-        private Set<Class> seenServices = new HashSet<>();
+        private Set<Class<?>> seenServices = new HashSet<>();
 
         public static Builder newInstance() {
             return new Builder();
         }
 
         public Builder layers(List<LoadedLayer> loadedLayers) {
-           index.loadedLayers.addAll(loadedLayers);
-           return this;
+            index.loadedLayers.addAll(loadedLayers);
+            return this;
         }
 
         public Builder service(Class<?> service) {
@@ -89,13 +89,13 @@ public class ScanIndex {
             }
             seenServices.add(service);
 
-            Service annotation = service.getAnnotation(Service.class);
+            var annotation = service.getAnnotation(Service.class);
             if (annotation != null) {
                 // TODO support profiles by ignoring services not in profile
-                Class<?>[] bindings = annotation.values();
+                var bindings = annotation.values();
                 if (bindings.length == 1 && Void.class.equals(bindings[0])) {
                     // no service interface specified, bind to impl
-                    List<Class<?>> list = index.bindingToServices.computeIfAbsent(service.getClass(), (k) -> new ArrayList<>());
+                    var list = index.bindingToServices.computeIfAbsent(service.getClass(), (k) -> new ArrayList<>());
                     list.add(service);
                     if (service.getInterfaces().length == 1 && !service.getInterfaces()[0].getPackageName().startsWith("java.")) {
                         // also bind the interface if a single one
@@ -118,10 +118,10 @@ public class ScanIndex {
         }
 
         public Builder qualified(Class<?> service, Class<?> qualifier) {
-            Set<Class<?>> services = index.qualifiedServices.computeIfAbsent(qualifier, (k) -> new HashSet<>());
+            var services = index.qualifiedServices.computeIfAbsent(qualifier, (k) -> new HashSet<>());
             services.add(service);
 
-            Set<Class<?>> qualifiers = index.serviceQualifiers.computeIfAbsent(service, (k) -> new HashSet<>());
+            var qualifiers = index.serviceQualifiers.computeIfAbsent(service, (k) -> new HashSet<>());
             qualifiers.add(qualifier);
             return this;
         }
@@ -137,13 +137,13 @@ public class ScanIndex {
         }
 
         public ScanIndex build() {
-            for (Map.Entry<Class<?>, List<Class<?>>> entry : index.bindingToServices.entrySet()) {
+            for (var entry : index.bindingToServices.entrySet()) {
                 if (entry.getValue().size() < 2) {
                     continue;
                 }
                 // sort ordered services
-                boolean sort = entry.getValue().stream().anyMatch((Class<?> service) -> {
-                    Service annotation = service.getAnnotation(Service.class);
+                var sort = entry.getValue().stream().anyMatch((Class<?> service) -> {
+                    var annotation = service.getAnnotation(Service.class);
                     return annotation != null && annotation.order() > Integer.MIN_VALUE;
                 });
                 if (sort) {

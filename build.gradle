@@ -46,6 +46,10 @@ subprojects {
         targetCompatibility = '11'
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
     dependencies {
         api 'org.jetbrains:annotations:15.0'
 
@@ -95,6 +99,7 @@ subprojects {
 
 
 }
+
 
 
 

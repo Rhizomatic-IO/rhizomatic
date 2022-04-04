@@ -1,6 +1,5 @@
 package io.rhizomatic.api;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -23,10 +22,6 @@ public interface Monitor {
 
     default void severe(String message, Throwable... errors) {
         severe(() -> message, errors);
-    }
-
-    default void severe(Map<String, Object> data) {
-
     }
 
     default void info(Supplier<String> supplier, Throwable... errors) {

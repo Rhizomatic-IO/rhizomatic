@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -25,6 +24,7 @@ import static io.rhizomatic.kernel.monitor.MonitorSetup.initializeMonitor;
 import static io.rhizomatic.kernel.monitor.MonitorSetup.redirectJdkLogging;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.ENVIRONMENT;
 import static io.rhizomatic.kernel.spi.ConfigurationKeys.RUNTIME;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Main entry to a Rhizomatic system.
@@ -60,20 +60,20 @@ public class Rhizomatic {
             throw new RhizomaticException("Error loading system definition", e);
         }
         Map<String, Object> base = definition.isPresent() ? definition.get().getConfiguration() : new HashMap<>();
-        Map<String, Object> configuration = loadConfiguration(base);
+        var configuration = loadConfiguration(base);
 
-        Monitor monitor = initializeMonitor(configuration);
+        var monitor = initializeMonitor(configuration);
 
-        Builder builder = Builder.newInstance();
+        var builder = Builder.newInstance();
 
         builder.configuration(configuration);
         builder.monitor(monitor);
 
-        ArgsParser.Params params = ArgsParser.parseParams(args);
+        var params = ArgsParser.parseParams(args);
 
         List<RzLayer> rzLayers;
         if (params.getModulePath() != null) {
-            RzModule rzModule = new RzModule(Paths.get(params.getModulePath()));
+            var rzModule = new RzModule(Paths.get(params.getModulePath()));
             rzLayers = List.of(RzLayer.Builder.newInstance("main").module(rzModule).build());
         } else if (definition.isPresent()) {
             rzLayers = definition.get().getLayers();
@@ -84,7 +84,7 @@ public class Rhizomatic {
         builder.layers(rzLayers);
 
         if (definition.isPresent()) {
-            List<WebApp> webApps = definition.get().getWebApps();
+            var webApps = definition.get().getWebApps();
             if (webApps == null) {
                 throw new IllegalArgumentException("Web apps cannot be null. If there are no configured web apps, return an empty collection from the definition.");
             }
@@ -159,7 +159,7 @@ public class Rhizomatic {
     }
 
     private static Map<String, Object> loadConfiguration(Map<String, Object> base) {
-        Map<String, Object> configuration = new HashMap<>(base);
+        var configuration = new HashMap<>(base);
         configuration.putIfAbsent(RUNTIME, "runtime");
         configuration.putIfAbsent(ENVIRONMENT, "production");
         return configuration;
@@ -202,7 +202,7 @@ public class Rhizomatic {
         }
 
         public Builder services(Set<Class<?>> classes) {
-            Objects.requireNonNull(classes, "Services cannot be null");
+            requireNonNull(classes, "Services cannot be null");
             rhizomatic.services = classes;
             return this;
         }
@@ -213,7 +213,7 @@ public class Rhizomatic {
         }
 
         public Builder instances(Set<Object> instances) {
-            Objects.requireNonNull(instances, "Service instances cannot be null");
+            requireNonNull(instances, "Service instances cannot be null");
             rhizomatic.instances = instances;
             return this;
         }
@@ -224,9 +224,9 @@ public class Rhizomatic {
         }
 
         public Builder webApps(List<WebApp> webApps) {
-            Set<String> contextPaths = new HashSet<>();
-            for (WebApp webApp : webApps) {
-                String contextPath = webApp.getContextPath();
+            var contextPaths = new HashSet<String>();
+            for (var webApp : webApps) {
+                var contextPath = webApp.getContextPath();
                 if (contextPaths.contains(contextPath)) {
                     throw new IllegalArgumentException("More than one web app configured for the context path: " + contextPath);
                 }

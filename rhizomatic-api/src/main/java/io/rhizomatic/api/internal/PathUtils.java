@@ -6,8 +6,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.function.Predicate;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Utilities for building layer configurations.
@@ -22,15 +23,15 @@ public class PathUtils {
         for (var i = 0; i < path.getNameCount(); i++) {
             segments.add(path.getName(i).toString());
         }
-        return segments.toArray(new String[segments.size()]);
+        return segments.toArray(new String[0]);
     }
 
     /**
      * Returns the starting index of the fragment in the array or -1 if not found.
      */
     public static int indexOf(String[] array, String[] fragment) {
-        Objects.requireNonNull(array, "array");
-        Objects.requireNonNull(fragment, "target");
+        requireNonNull(array, "array");
+        requireNonNull(fragment, "target");
         if (fragment.length == 0) {
             return 0;
         }

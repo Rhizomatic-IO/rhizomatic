@@ -87,7 +87,7 @@ public class LayerManager {
             parentLayers.add(bootLayer);
         }
 
-        // Each layer has a networked classloader that delegates to parent layers; each contained module has its own classloader whoch delegates to the layer networked classloader
+        // Each layer has a networked classloader that delegates to parent layers; each contained module has its own classloader which delegates to the layer networked classloader
         var layerLoader = createLayerClassLoader(layer, mappings);
 
         var modulePaths = layer.getModules().stream().map(RzModule::getLocation).toArray(Path[]::new);

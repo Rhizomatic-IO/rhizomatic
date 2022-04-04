@@ -13,7 +13,6 @@ import com.google.inject.util.Types;
 import io.rhizomatic.api.RhizomaticException;
 import io.rhizomatic.api.annotations.Multiplicity;
 import io.rhizomatic.kernel.spi.inject.InstanceManager;
-import io.rhizomatic.kernel.spi.layer.LoadedLayer;
 import io.rhizomatic.kernel.spi.scan.ScanIndex;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
+
+import static io.rhizomatic.kernel.spi.util.Cast.cast;
 
 /**
  * Guice implementation of an instance manager.
@@ -52,15 +53,15 @@ public class GuiceInstanceManager implements InstanceManager {
                 }
 
                 for (var entry : instances.entrySet()) {
-                    Class key = entry.getKey();
-                    bind(key).toInstance(entry.getValue());
+                    var key = entry.getKey();
+                    bind(key).toInstance(cast(entry.getValue()));
                 }
 
                 // install provided modules
                 if (!scanIndex.getLayers().isEmpty()) {
-                    for (LoadedLayer loadedLayer : scanIndex.getLayers()) {
-                        ModuleLayer layer = loadedLayer.getModuleLayer();
-                        ServiceLoader<com.google.inject.Module> guiceModules = ServiceLoader.load(layer, com.google.inject.Module.class);
+                    for (var loadedLayer : scanIndex.getLayers()) {
+                        var layer = loadedLayer.getModuleLayer();
+                        var guiceModules = ServiceLoader.load(layer, com.google.inject.Module.class);
                         guiceModules.forEach(this::install);
                     }
                 }
@@ -71,11 +72,11 @@ public class GuiceInstanceManager implements InstanceManager {
                         //noinspection UnnecessaryContinue
                         continue;
                     } else if (entry.getValue().size() == 1 && !isMultiplicity(entry.getKey())) {
-                        Class implClass = entry.getValue().get(0);
+                        @SuppressWarnings("rawtypes") Class implClass = entry.getValue().get(0);
                         bind(entry.getKey()).to(implClass).in(Scopes.SINGLETON);
                     } else {
                         Class<?> key = entry.getKey();
-                        Multibinder builder;
+                        @SuppressWarnings("rawtypes") Multibinder builder;
                         if (key.getTypeParameters().length > 0) {
                             // bind generic params to wildcard types
                             var paramTypes = new Type[key.getTypeParameters().length];
