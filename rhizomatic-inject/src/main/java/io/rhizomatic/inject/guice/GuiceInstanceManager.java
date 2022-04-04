@@ -75,7 +75,7 @@ public class GuiceInstanceManager implements InstanceManager {
                         @SuppressWarnings("rawtypes") Class implClass = entry.getValue().get(0);
                         bind(entry.getKey()).to(implClass).in(Scopes.SINGLETON);
                     } else {
-                        Class<?> key = entry.getKey();
+                        var key = entry.getKey();
                         @SuppressWarnings("rawtypes") Multibinder builder;
                         if (key.getTypeParameters().length > 0) {
                             // bind generic params to wildcard types
@@ -104,7 +104,7 @@ public class GuiceInstanceManager implements InstanceManager {
 
     public void startInstances() {
         checkWired();
-        for (Class<?> eagerService : eagerServices) {
+        for (var eagerService : eagerServices) {
             injector.getInstance(eagerService); // TODO handle case where not bound to type
         }
     }

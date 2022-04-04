@@ -56,7 +56,6 @@ public final class IOHelper {
             } else if (!file.delete()) {
                 throw new GradleException("Unable to delete file: " + file);
             }
-
         }
     }
 

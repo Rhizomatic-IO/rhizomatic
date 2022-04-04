@@ -22,7 +22,7 @@ public class RewriteHandler extends HandlerWrapper {
     }
 
     private String calculateTarget(String target) {
-        int pos = target.lastIndexOf(".");
+        var pos = target.lastIndexOf(".");
         if (pos > 1 && pos < target.length() - 1) {
             return target;
         }
