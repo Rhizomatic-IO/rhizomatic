@@ -68,7 +68,7 @@ public class RzInjectionManager implements InjectionManager {
         } else if (binding instanceof SupplierInstanceBinding) {
             @SuppressWarnings("rawtypes") var supplierBinding = (SupplierInstanceBinding) binding;
             for (var contract : binding.getContracts()) {
-                List<InstanceHolder> list = holders.computeIfAbsent(contract, k -> new ArrayList<>());
+                var list = holders.computeIfAbsent(contract, k -> new ArrayList<>());
                 @SuppressWarnings("unchecked") InstanceHolder holder = new InstanceHolder(supplierBinding.getSupplier().get(), qualifiers);
                 list.add(holder);
             }
