@@ -1,4 +1,4 @@
 
 dependencies {
-    implementation project(':rhizomatic-api')
+    api project(':rhizomatic-api')
 }

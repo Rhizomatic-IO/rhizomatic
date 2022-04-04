@@ -62,9 +62,7 @@ public class RzInjectionManager implements InjectionManager {
                     @SuppressWarnings("unchecked") var holder = new InstanceHolder(serviceClass.getConstructor().newInstance(), qualifiers);
                     list.add(holder);
                 } catch (Throwable e) {
-                    // FIXME uncomment and remove all of this
-//                    monitor.info(() -> "JAX-RS Type: " + classBinding.getService().getName());
-//                    e.printStackTrace();
+                    // ignore WADL errors
                 }
             }
         } else if (binding instanceof SupplierInstanceBinding) {

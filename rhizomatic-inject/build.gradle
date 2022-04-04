@@ -1,7 +1,7 @@
 def guiceVersion = '5.1.0'
 
 dependencies {
-    implementation project(':rhizomatic-api')
+    api project(':rhizomatic-api')
     implementation project(':rhizomatic-kernel')
 
     implementation("com.google.inject:guice:${guiceVersion}") {
