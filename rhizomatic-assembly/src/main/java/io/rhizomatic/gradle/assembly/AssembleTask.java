@@ -110,6 +110,7 @@ public class AssembleTask extends DefaultTask {
         this._patchModules = (String[]) patchModules;
     }
 
+    @Input
     public String[] getWebapps() {
         return _webapps;
     }

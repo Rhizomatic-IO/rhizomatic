@@ -11,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.javamodularity:moduleplugin:1.8.10"
+        classpath "org.javamodularity:moduleplugin:1.8.12"
     }
 
 }
