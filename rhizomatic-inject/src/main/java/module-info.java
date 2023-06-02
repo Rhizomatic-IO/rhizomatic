@@ -11,7 +11,7 @@ module io.rhizomatic.inject {
     requires io.rhizomatic.api;
     requires io.rhizomatic.kernel;
     requires com.google.guice;
-    requires static annotations;
+    requires static org.jetbrains.annotations;
 
     uses com.google.inject.Module;
 

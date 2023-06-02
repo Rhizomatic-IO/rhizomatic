@@ -4,7 +4,7 @@
  */
 module io.rhizomatic.kernel {
 
-    requires annotations;
+    requires org.jetbrains.annotations;
 
     requires io.rhizomatic.api;
     requires java.logging;
