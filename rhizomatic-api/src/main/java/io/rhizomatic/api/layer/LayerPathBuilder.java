@@ -14,7 +14,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Builds a layer definition based on a root path. The included module locations can be customized based on inclusions, exclusions and Java class file directory partial paths.
  *
- * This builder can be used to create layer definition from the file system image of a soource code repository.
+ * This builder can be used to create layer definition from the file system image of a source code repository.
  */
 public class LayerPathBuilder {
     private String name;
