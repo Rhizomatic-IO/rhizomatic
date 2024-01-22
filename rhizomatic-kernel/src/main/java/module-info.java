@@ -9,7 +9,6 @@ module io.rhizomatic.kernel {
     requires io.rhizomatic.api;
     requires java.logging;
 
-    exports io.rhizomatic.kernel;
     exports io.rhizomatic.kernel.spi;
     exports io.rhizomatic.kernel.spi.subsystem;
     exports io.rhizomatic.kernel.spi.inject;
