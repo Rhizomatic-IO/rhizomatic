@@ -26,11 +26,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.servlet.internal.Utils;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.RuntimeType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -39,6 +34,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.ws.rs.Path;
+import javax.ws.rs.RuntimeType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
 
 /**
  * Loads the Web subsystem. Provides a Jetty web server, web app support, and JAX-RS endpoint publishing using Jersey.
@@ -49,6 +49,8 @@ public class WebSubsystem extends Subsystem {
 
     protected Monitor monitor;
     protected JettyTransport jettyTransport;
+
+    private ServletContextHandler rootHandler;
 
     private Map<Object, Holder> instanceToContainers = new ConcurrentHashMap<>();  // instance to the Jersey servlet they are running in
     private Map<Object, Holder> pathToContainers = new ConcurrentHashMap<>();  // root path (web path) to the Jersey servlet that contains the endpoints
@@ -147,12 +149,14 @@ public class WebSubsystem extends Subsystem {
             servletHolder.setServlet(servletContainer);
             servletHolder.setInitOrder(1);
 
-            var handler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-            handler.setContextPath("/");
-            jettyTransport.registerHandler(handler);
-            handler.getServletHandler().addServletWithMapping(servletHolder, "/" + rootPath + "/*");
+            if (rootHandler == null) {  // root handler is shared
+                rootHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+                rootHandler.setContextPath("/");
+                jettyTransport.registerHandler(rootHandler);
+            }
+            rootHandler.getServletHandler().addServletWithMapping(servletHolder, "/" + rootPath + "/*");
 
-            Utils.store(resourceConfig, handler.getServletContext(), RHIZOMATIC_REST + "_" + rootPath);
+            Utils.store(resourceConfig, rootHandler.getServletContext(), RHIZOMATIC_REST + "_" + rootPath);
             monitor.info(() -> "Endpoint context at: " + (rootPath.startsWith("/") ? rootPath : "/" + rootPath));
         }
     }
