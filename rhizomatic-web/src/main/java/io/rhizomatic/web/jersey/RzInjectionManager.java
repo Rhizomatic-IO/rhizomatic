@@ -3,7 +3,9 @@ package io.rhizomatic.web.jersey;
 import org.glassfish.jersey.internal.inject.Binder;
 import org.glassfish.jersey.internal.inject.Binding;
 import org.glassfish.jersey.internal.inject.ClassBinding;
+import org.glassfish.jersey.internal.inject.ContextInjectionResolver;
 import org.glassfish.jersey.internal.inject.ForeignDescriptor;
+import org.glassfish.jersey.internal.inject.Injectee;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.glassfish.jersey.internal.inject.InstanceBinding;
 import org.glassfish.jersey.internal.inject.ServiceHolder;
@@ -21,15 +23,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.Context;
+
+import static io.rhizomatic.kernel.spi.util.Cast.cast;
+import static java.lang.ThreadLocal.withInitial;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Bridges Jersey injection and the system injection manager.
+ * <p>
+ * Implements {@code ContextInjectionResolver} to support injection of custom types annotated with {@code @Context} on controller classes.
  */
-public class RzInjectionManager implements InjectionManager {
+public class RzInjectionManager implements InjectionManager, ContextInjectionResolver {
     private static final String CUSTOM_ANNOTATION = "org.glassfish.jersey.internal.inject.Custom";
-    // List of contracts to instances registered by Jersey. Jersey registers instances it creates via Service locators as well as instances resolved from the Guice
-    // injection manager.
+
+    // List of contracts to instances registered by Jersey. Jersey registers instances it creates via Service locators
+    // as well as instances resolved from the Guice injection manager.
     private Map<Object, List<InstanceHolder>> holders = new HashMap<>();
+
+    private ThreadLocal<Map<Type, Object>> contextInstances = withInitial(HashMap::new);
 
     public RzInjectionManager() {
         registerJerseyServices();
@@ -41,11 +53,27 @@ public class RzInjectionManager implements InjectionManager {
     public void shutdown() {
     }
 
+    /**
+     * Registers an instance scoped to the current request. Used for injection of custom {@code @Context} objects.
+     */
+    public <T> void registerRequestInstance(T instance, Class<T> type) {
+        requireNonNull(type);
+        var context = contextInstances.get();
+        context.put(type, instance);
+    }
+
+    /**
+     * Removes request-scoped instances.
+     */
+    public void clearRequestInstances() {
+        contextInstances.remove();
+    }
+
     public void register(Binding binding) {
         var qualifiers = binding.getQualifiers();
         if (binding instanceof InstanceBinding) {
             @SuppressWarnings("rawtypes") var instanceBinding = (InstanceBinding) binding;
-            for (Object contract : binding.getContracts()) {
+            for (var contract : binding.getContracts()) {
                 var list = holders.computeIfAbsent(contract, k -> new ArrayList<>());
                 @SuppressWarnings("unchecked") var holder = new InstanceHolder(instanceBinding.getService(), qualifiers);
                 list.add(holder);
@@ -102,10 +130,12 @@ public class RzInjectionManager implements InjectionManager {
     public <T> T createAndInitialize(Class<T> implClass) {
         try {
             return implClass.getConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (InstantiationException
+                 | IllegalAccessException
+                 | NoSuchMethodException
+                 | InvocationTargetException e) {
+            throw new RuntimeException("Error creating type: " + e);
         }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -146,6 +176,9 @@ public class RzInjectionManager implements InjectionManager {
     }
 
     public <T> T getInstance(Class<T> contract) {
+        if (ContextInjectionResolver.class.equals(contract)) {
+            return cast(this);
+        }
         return getInstance((Type) contract);
     }
 
@@ -168,7 +201,7 @@ public class RzInjectionManager implements InjectionManager {
 
     public <T> List<T> getAllInstances(Type contract) {
         T t = getInstance(contract);
-        List<T> list = new ArrayList<>();
+        var list = new ArrayList<T>();
         if (t == null) {
             return list;
         }
@@ -183,6 +216,27 @@ public class RzInjectionManager implements InjectionManager {
     }
 
     public void preDestroy(Object instance) {
+    }
+
+    @Override
+    public Object resolve(Injectee injectee) {
+        var type = injectee.getRequiredType();
+        return contextInstances.get().get(type);
+    }
+
+    @Override
+    public boolean isConstructorParameterIndicator() {
+        return false;
+    }
+
+    @Override
+    public boolean isMethodParameterIndicator() {
+        return true;
+    }
+
+    @Override
+    public Class<Context> getAnnotation() {
+        return Context.class;
     }
 
     private void registerJerseyServices() {

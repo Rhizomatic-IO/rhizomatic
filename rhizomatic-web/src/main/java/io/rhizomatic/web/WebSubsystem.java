@@ -15,8 +15,10 @@ import io.rhizomatic.web.http.RewriteHandler;
 import io.rhizomatic.web.jersey.RzInjectionManager;
 import io.rhizomatic.web.jersey.RzInjectionManagerFactory;
 import io.rhizomatic.web.scan.WebIntrospector;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.Source;
@@ -26,19 +28,28 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.servlet.internal.Utils;
 
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Path;
-import javax.ws.rs.RuntimeType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
+
+import static javax.ws.rs.RuntimeType.SERVER;
 
 /**
  * Loads the Web subsystem. Provides a Jetty web server, web app support, and JAX-RS endpoint publishing using Jersey.
@@ -46,6 +57,7 @@ import javax.ws.rs.ext.Provider;
 public class WebSubsystem extends Subsystem {
     private static final Set<String> OPENS = Set.of("jersey.common", "jersey.server", "jetty.server", "jetty.util", "io.rhizomatic.web");
     private static final String RHIZOMATIC_REST = "RhizomaticRest";
+    private static final String MULTIPART_FORM_DATA = "multipart/form-data";
 
     protected Monitor monitor;
     protected JettyTransport jettyTransport;
@@ -66,7 +78,7 @@ public class WebSubsystem extends Subsystem {
     public void instantiate(SubsystemContext context) {
         monitor = context.getMonitor();
         RzInjectionManagerFactory.INSTANCE = new RzInjectionManager();
-        RzInjectionManagerFactory.INSTANCE.register(new MessagingBinders.MessageBodyProviders(Collections.emptyMap(), RuntimeType.SERVER));
+        RzInjectionManagerFactory.INSTANCE.register(new MessagingBinders.MessageBodyProviders(Collections.emptyMap(), SERVER));
 
         jettyTransport = new JettyTransport();
         jettyTransport.initialize(context);
@@ -107,8 +119,8 @@ public class WebSubsystem extends Subsystem {
 
     protected void configureProviders(Map<String, ResourceConfig> resourceConfiguration, InstanceManager instanceManager) {
         var providers = instanceManager.resolveQualifiedTypes(Provider.class);
-        for (ResourceConfig resourceConfig : resourceConfiguration.values()) {
-            for (Object provider : providers) {
+        for (var resourceConfig : resourceConfiguration.values()) {
+            for (var provider : providers) {
                 resourceConfig.register(provider);
             }
         }
@@ -123,7 +135,6 @@ public class WebSubsystem extends Subsystem {
             var resourceConfig = resourceConfigs.computeIfAbsent(rootPath, k -> new ResourceConfig());
 
             var jacksonJsonProvider = createJacksonProvider(instanceManager);
-
             resourceConfig.registerInstances(jacksonJsonProvider);
             resourceConfig.register(endpoint);
         }
@@ -153,11 +164,12 @@ public class WebSubsystem extends Subsystem {
                 rootHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
                 rootHandler.setContextPath("/");
                 jettyTransport.registerHandler(rootHandler);
+                rootHandler.getServletHandler().addFilterWithMapping(new FilterHolder(new ContextFilter()), "/" + rootPath + "/*", 0);
             }
             rootHandler.getServletHandler().addServletWithMapping(servletHolder, "/" + rootPath + "/*");
 
             Utils.store(resourceConfig, rootHandler.getServletContext(), RHIZOMATIC_REST + "_" + rootPath);
-            monitor.info(() -> "Endpoint context at: " + (rootPath.startsWith("/") ? rootPath : "/" + rootPath));
+            monitor.info("Endpoint context at: " + (rootPath.startsWith("/") ? rootPath : "/" + rootPath));
         }
     }
 
@@ -181,7 +193,7 @@ public class WebSubsystem extends Subsystem {
 
             jettyTransport.registerHandler(ctx);
 
-            monitor.info(() -> "Web app at: " + (contextPath.startsWith("/") ? contextPath : "/" + contextPath));
+            monitor.info("Web app at: " + (contextPath.startsWith("/") ? contextPath : "/" + contextPath));
         }
     }
 
@@ -196,9 +208,9 @@ public class WebSubsystem extends Subsystem {
                 var providers = instanceManager.resolveQualifiedTypes(Provider.class);
                 for (var provider : providers) {
                     if (provider instanceof ContextResolver) {
-                        for (Type interfaze : provider.getClass().getGenericInterfaces()) {
+                        for (var interfaze : provider.getClass().getGenericInterfaces()) {
                             if (interfaze instanceof ParameterizedType) {
-                                ParameterizedType parameterizedType = (ParameterizedType) interfaze;
+                                var parameterizedType = (ParameterizedType) interfaze;
                                 if (parameterizedType.getRawType().equals(ContextResolver.class)) {
                                     if (parameterizedType.getActualTypeArguments()[0].equals(ObjectMapper.class)) {
                                         //noinspection rawtypes
@@ -275,7 +287,6 @@ public class WebSubsystem extends Subsystem {
         return rootPath;
     }
 
-
     private static class Holder {
         String rootPath;
         ServletContainer servletContainer;
@@ -288,5 +299,30 @@ public class WebSubsystem extends Subsystem {
         }
     }
 
+    /**
+     * Tracks servlet request and response instances, so they can be injected into controller methods params marked with {@code @Context}.
+     */
+    private static class ContextFilter implements Filter {
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+            try {
+                RzInjectionManagerFactory.INSTANCE.registerRequestInstance(request, ServletRequest.class);
+                if (request instanceof HttpServletRequest) {
+                    if (request.getContentType() != null && request.getContentType().startsWith(MULTIPART_FORM_DATA)) {
+                        request.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, new MultipartConfigElement("rz-temp"));
+                    }
+                    RzInjectionManagerFactory.INSTANCE.registerRequestInstance((HttpServletRequest) request, HttpServletRequest.class);
+                }
+                RzInjectionManagerFactory.INSTANCE.registerRequestInstance(response, ServletResponse.class);
+                if (response instanceof HttpServletResponse) {
+                    RzInjectionManagerFactory.INSTANCE.registerRequestInstance((HttpServletResponse) response, HttpServletResponse.class);
+                }
+                filterChain.doFilter(request, response);
+            } finally {
+                RzInjectionManagerFactory.INSTANCE.clearRequestInstances();
+            }
+        }
+    }
 
 }
