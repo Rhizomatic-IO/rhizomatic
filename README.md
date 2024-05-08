@@ -204,7 +204,7 @@ module bootstrap.dev {
 }
 
 ``` 
-To enable the monitor implementation, the module must be laoded as a library (not an application module) since monitor messages are emitted during application boot.
+To enable the monitor implementation, the module must be loaded as a library (not an application module) since monitor messages are emitted during application boot.
   
 # Building from Source
 
